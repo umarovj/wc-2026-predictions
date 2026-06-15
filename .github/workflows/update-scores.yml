@@ -1,0 +1,38 @@
+name: Auto-Update WC Scores
+
+on:
+  schedule:
+    - cron: "0 */2 * * *"   # every 2 hours, 24/7
+  workflow_dispatch:          # also lets you trigger it manually from GitHub
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch and patch scores
+        id: patch
+        run: python update_scores.py
+        continue-on-error: true   # exit 1 (no changes) is normal, don't fail the job
+
+      - name: Commit and push if scores changed
+        if: steps.patch.outcome == 'success'   # only runs when exit 0 (changes found)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Auto-update WC scores $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push

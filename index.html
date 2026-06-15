@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIFA World Cup 2026 Predictions Hub</title>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #2a3550;
+    --accent: #e8a020;
+    --accent2: #1e90ff;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* NAV */
+  nav {
+    background: var(--surface);
+    border-bottom: 2px solid var(--accent);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+  .nav-logo span { font-size: 1.8rem; }
+  .nav-links { display: flex; gap: 8px; }
+  .nav-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(232,160,32,0.08);
+  }
+
+  /* PAGES */
+  .page { display: none; padding: 28px 24px; max-width: 1300px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* MATCH DETAIL PAGE */
+  #page-match { display: none; padding: 28px 24px; max-width: 1300px; margin: 0 auto; }
+  #page-match.active { display: block; }
+
+  /* SECTION HEADERS */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-header h2 { font-size: 1.6rem; font-weight: 700; }
+  .section-header .badge {
+    background: var(--accent);
+    color: #000;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* GROUP FILTER */
+  .group-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .filter-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* SCHEDULE GRID */
+  .schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  .match-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .match-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: var(--accent2);
+  }
+  .match-card:hover {
+    border-color: var(--accent2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .match-card .group-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .match-teams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .team-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+  .team-flag { font-size: 2rem; line-height: 1; }
+  .team-name { font-size: 0.88rem; font-weight: 600; text-align: center; }
+  .vs-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .match-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    margin-top: 4px;
+  }
+  .match-meta span { display: flex; align-items: center; gap: 4px; }
+  .match-card .click-hint {
+    position: absolute;
+    top: 12px; right: 12px;
+    font-size: 0.7rem;
+    color: var(--accent2);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .match-card:hover .click-hint { opacity: 1; }
+
+  /* MATCH DETAIL */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 0.88rem;
+    margin-bottom: 24px;
+    transition: all 0.2s;
+  }
+  .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .match-hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .match-hero .match-title { font-size: 0.9rem; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; }
+  .hero-teams { display: flex; align-items: center; justify-content: center; gap: 32px; margin-bottom: 20px; }
+  .hero-team { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .hero-flag { font-size: 4rem; }
+  .hero-name { font-size: 1.4rem; font-weight: 700; }
+  .hero-vs { font-size: 2rem; color: var(--text-muted); font-weight: 300; }
+  .hero-meta { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-muted); }
+  .hero-meta span { display: flex; align-items: center; gap: 6px; }
+
+  /* PREDICTION BARS */
+  .prediction-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .prediction-section h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap-8px; }
+  .pred-bars { display: flex; gap: 0; border-radius: 8px; overflow: hidden; height: 48px; margin-bottom: 16px; }
+  .pred-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    transition: flex 0.5s ease;
+    min-width: 40px;
+  }
+  .pred-bar.win1 { background: var(--accent2); }
+  .pred-bar.draw  { background: #6b7280; }
+  .pred-bar.win2  { background: #dc2626; }
+  .pred-labels { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted); }
+  .pred-labels span { display: flex; align-items: center; gap: 5px; }
+  .pred-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  /* ROSTERS */
+  .rosters-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  @media (max-width: 700px) { .rosters-grid { grid-template-columns: 1fr; } }
+  .roster-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .roster-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .roster-header .flag { font-size: 1.5rem; }
+  .roster-header h4 { font-size: 1rem; font-weight: 700; }
+  .roster-header .win-odds {
+    margin-left: auto;
+    background: rgba(232,160,32,0.15);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .roster-list { list-style: none; max-height: 380px; overflow-y: auto; }
+  .roster-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 18px;
+    border-bottom: 1px solid rgba(42,53,80,0.5);
+    font-size: 0.83rem;
+    transition: background 0.15s;
+  }
+  .roster-list li:hover { background: var(--surface2); }
+  .roster-list li:last-child { border-bottom: none; }
+  .pos-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    min-width: 30px;
+    text-align: center;
+  }
+  .pos-gk { background: #854d0e; color: #fde68a; }
+  .pos-def { background: #1e3a5f; color: #93c5fd; }
+  .pos-mid { background: #14532d; color: #86efac; }
+  .pos-fwd { background: #7f1d1d; color: #fca5a5; }
+  .player-num { color: var(--text-muted); font-size: 0.75rem; width: 20px; text-align: right; }
+  .injured-tag {
+    margin-left: auto;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #7f1d1d;
+    color: #fca5a5;
+  }
+  .captain-tag {
+    margin-left: auto;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #78350f;
+    color: #fde68a;
+  }
+
+  /* INJURIES PAGE */
+  .injuries-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  .injury-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--red);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .injury-card.doubt {
+    border-left-color: var(--yellow);
+  }
+  .injury-card.race {
+    border-left-color: var(--green);
+  }
+  .injury-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .injury-top .player-flag { font-size: 1.3rem; }
+  .injury-top .player-name { font-size: 1rem; font-weight: 700; }
+  .injury-top .status-pill {
+    margin-left: auto;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .status-out { background: #7f1d1d; color: #fca5a5; }
+  .status-doubt { background: #713f12; color: #fde68a; }
+  .status-race { background: #14532d; color: #86efac; }
+  .injury-details { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+  .injury-details strong { color: var(--text); display: block; margin-bottom: 3px; }
+  .injury-details .injury-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .injury-details .imeta-tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  /* TRAVEL SECTION */
+  .travel-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .travel-section h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; }
+  .travel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 700px) { .travel-grid { grid-template-columns: 1fr; } }
+  .travel-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .travel-card .tc-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .travel-card .tc-price {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--green);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .travel-card .tc-price.ticket-price { color: var(--accent); }
+  .travel-card .tc-sub {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .travel-card a.tc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(30,144,255,0.12);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .travel-card a.tc-link:hover { background: rgba(30,144,255,0.25); }
+  .travel-card a.tc-link.ticket-link {
+    background: rgba(232,160,32,0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .travel-card a.tc-link.ticket-link:hover { background: rgba(232,160,32,0.25); }
+  .travel-disclaimer { font-size: 0.72rem; color: var(--text-muted); margin-top: 14px; font-style: italic; }
+
+  /* STATS SECTION */
+  .tournament-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-card .stat-num { font-size: 2rem; font-weight: 800; color: var(--accent); }
+  .stat-card .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+  /* FAVORITES TABLE */
+  .favorites-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .favorites-table table { width: 100%; border-collapse: collapse; }
+  .favorites-table th {
+    background: var(--surface2);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+  }
+  .favorites-table td {
+    padding: 11px 16px;
+    font-size: 0.88rem;
+    border-bottom: 1px solid rgba(42,53,80,0.5);
+  }
+  .favorites-table tr:last-child td { border-bottom: none; }
+  .favorites-table tr:hover td { background: var(--surface2); }
+  .prob-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .prob-bar-bg { background: var(--surface2); border-radius: 4px; height: 8px; flex: 1; overflow: hidden; }
+  .prob-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+  .rank-num { color: var(--text-muted); font-size: 0.8rem; width: 24px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .hero-teams { gap: 16px; }
+    .hero-flag { font-size: 2.8rem; }
+    .hero-name { font-size: 1.1rem; }
+    nav { padding: 0 12px; }
+    .nav-logo span { font-size: 1.4rem; }
+    .page, #page-match { padding: 16px 12px; }
+    .schedule-grid { grid-template-columns: 1fr; }
+  }
+
+  .hidden { display: none !important; }
+
+  /* FILTER SIDEBAR */
+  .filter-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 200;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .filter-overlay.open { opacity: 1; pointer-events: all; }
+  .filter-sidebar {
+    position: fixed;
+    top: 0; right: -380px;
+    width: 360px; height: 100vh;
+    background: var(--surface);
+    border-left: 2px solid var(--border);
+    z-index: 201;
+    transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .filter-sidebar.open { right: 0; }
+  .sidebar-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 20px 18px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .sidebar-header h3 { font-size: 1.05rem; font-weight: 700; color: var(--accent); }
+  .sidebar-close {
+    background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+    width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  }
+  .sidebar-close:hover { border-color: var(--accent); color: var(--accent); }
+  .sidebar-body { padding: 20px; overflow-y: auto; flex: 1; }
+  .sidebar-section { margin-bottom: 28px; }
+  .sidebar-section h4 {
+    font-size: 0.78rem; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px;
+  }
+  .nation-search {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 9px 12px; border-radius: var(--radius);
+    font-size: 0.9rem; outline: none; transition: border-color 0.2s;
+  }
+  .nation-search:focus { border-color: var(--accent2); }
+  .nation-search::placeholder { color: var(--text-muted); }
+  .city-list { display: flex; flex-direction: column; gap: 4px; }
+  .city-checkbox {
+    display: flex; align-items: center; gap: 10px; cursor: pointer;
+    padding: 7px 10px; border-radius: 8px; transition: background 0.15s; font-size: 0.88rem;
+  }
+  .city-checkbox:hover { background: var(--surface2); }
+  .city-checkbox input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+  .sidebar-actions {
+    padding: 14px 20px; border-top: 1px solid var(--border);
+    display: flex; gap: 10px; flex-shrink: 0;
+  }
+  .btn-apply {
+    flex: 1; background: var(--accent); color: #000; border: none;
+    padding: 10px; border-radius: var(--radius); font-weight: 700;
+    cursor: pointer; font-size: 0.9rem; transition: opacity 0.2s;
+  }
+  .btn-apply:hover { opacity: 0.85; }
+  .btn-clear {
+    background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+    padding: 10px 16px; border-radius: var(--radius); cursor: pointer;
+    font-size: 0.88rem; transition: all 0.2s;
+  }
+  .btn-clear:hover { border-color: var(--red); color: var(--red); }
+  .filter-open-btn {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    padding: 7px 14px; border-radius: var(--radius); cursor: pointer; font-size: 0.88rem;
+    display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; white-space: nowrap;
+  }
+  .filter-open-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .filter-open-btn.has-filters { border-color: var(--accent); color: var(--accent); background: rgba(232,160,32,0.1); }
+  .filter-count-badge {
+    background: var(--accent); color: #000; border-radius: 50%;
+    width: 18px; height: 18px; font-size: 0.68rem; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .schedule-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+  .no-results {
+    grid-column: 1/-1; text-align: center; padding: 48px 20px;
+    color: var(--text-muted); font-size: 0.95rem;
+  }
+
+  /* SCORES */
+  .score-display { display:flex; flex-direction:column; align-items:center; gap:3px; flex-shrink:0; min-width:54px; }
+  .score-num { font-size:1.25rem; font-weight:800; color:var(--text); letter-spacing:0.04em; white-space:nowrap; }
+  .badge-ft { background:#14532d; color:#86efac; font-size:0.6rem; font-weight:700; padding:2px 7px; border-radius:4px; letter-spacing:0.05em; }
+  .badge-live { background:#7f1d1d; color:#fca5a5; font-size:0.6rem; font-weight:700; padding:2px 7px; border-radius:4px; letter-spacing:0.05em; animation:pulseLive 1.2s ease-in-out infinite; }
+  @keyframes pulseLive { 0%,100%{opacity:1} 50%{opacity:0.45} }
+
+  /* HERO SCORE */
+  .hero-score { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .hero-score .big-score { font-size:2.6rem; font-weight:900; letter-spacing:0.06em; color:var(--text); }
+
+  /* LIVE TICKER */
+  .live-ticker {
+    display:flex; align-items:center; gap:10px;
+    background: rgba(127,29,29,0.35); border:1px solid #ef4444;
+    border-radius:var(--radius); padding:10px 16px; margin-bottom:16px;
+    font-size:0.88rem; color:var(--text);
+  }
+  .live-dot { width:9px; height:9px; background:#ef4444; border-radius:50%; flex-shrink:0; animation:pulseLive 1.2s ease-in-out infinite; }
+
+  /* COMPLETED MATCH CARD tint */
+  .match-card.match-ft { border-left-color: var(--green) !important; opacity:0.85; }
+  .match-card.match-live { border-left-color: #ef4444 !important; box-shadow: 0 0 14px rgba(239,68,68,0.3); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo"><img src="data:image/png;base64,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" style="height:44px;width:auto;object-fit:contain;filter:drop-shadow(0 0 6px rgba(232,160,32,0.5));" alt="WC Trophy"> WC 2026 Hub</div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('schedule')">Schedule</button>
+    <button class="nav-btn" onclick="showPage('overview')">Overview</button>
+    <button class="nav-btn" onclick="showPage('injuries')">Injuries / Out</button>
+  </div>
+</nav>
+
+<!-- FILTER SIDEBAR -->
+<div class="filter-overlay" id="filterOverlay" onclick="closeFilterPanel()"></div>
+<div class="filter-sidebar" id="filterSidebar">
+  <div class="sidebar-header">
+    <h3>🔍 Filter Matches</h3>
+    <button class="sidebar-close" onclick="closeFilterPanel()">✕</button>
+  </div>
+  <div class="sidebar-body">
+    <div class="sidebar-section">
+      <h4>Search by Nation</h4>
+      <input type="text" class="nation-search" id="nationSearch" placeholder="e.g. Brazil, France, USA…" oninput="applyFilters()">
+    </div>
+    <div class="sidebar-section">
+      <h4>Filter by City</h4>
+      <div class="city-list" id="cityCheckboxes"></div>
+    </div>
+  </div>
+  <div class="sidebar-actions">
+    <button class="btn-clear" onclick="clearFilters()">Clear All</button>
+    <button class="btn-apply" onclick="closeFilterPanel()">Done</button>
+  </div>
+</div>
+
+<!-- ===================== SCHEDULE PAGE ===================== -->
+<div id="page-schedule" class="page active">
+  <div class="schedule-top">
+    <div class="section-header" style="margin-bottom:0">
+      <h2>Group Stage Fixtures</h2>
+      <span class="badge">Jun 11 – Jul 2</span>
+    </div>
+    <button class="filter-open-btn" id="filterOpenBtn" onclick="openFilterPanel()">
+      🔍 Filters <span id="filterCountBadge" class="filter-count-badge" style="display:none">0</span>
+    </button>
+  </div>
+  <div class="group-filter" id="groupFilter">
+    <button class="filter-btn active" onclick="filterGroup('all', this)">All Groups</button>
+    <button class="filter-btn" onclick="filterGroup('A', this)">Group A</button>
+    <button class="filter-btn" onclick="filterGroup('B', this)">Group B</button>
+    <button class="filter-btn" onclick="filterGroup('C', this)">Group C</button>
+    <button class="filter-btn" onclick="filterGroup('D', this)">Group D</button>
+    <button class="filter-btn" onclick="filterGroup('E', this)">Group E</button>
+    <button class="filter-btn" onclick="filterGroup('F', this)">Group F</button>
+    <button class="filter-btn" onclick="filterGroup('G', this)">Group G</button>
+    <button class="filter-btn" onclick="filterGroup('H', this)">Group H</button>
+    <button class="filter-btn" onclick="filterGroup('I', this)">Group I</button>
+    <button class="filter-btn" onclick="filterGroup('J', this)">Group J</button>
+    <button class="filter-btn" onclick="filterGroup('K', this)">Group K</button>
+    <button class="filter-btn" onclick="filterGroup('L', this)">Group L</button>
+  </div>
+  <div class="schedule-grid" id="scheduleGrid"></div>
+</div>
+
+<!-- ===================== OVERVIEW PAGE ===================== -->
+<div id="page-overview" class="page">
+  <div class="section-header">
+    <h2>Tournament Overview</h2>
+    <span class="badge">2026</span>
+  </div>
+  <div class="tournament-stats">
+    <div class="stat-card"><div class="stat-num">48</div><div class="stat-label">Qualified Nations</div></div>
+    <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Groups</div></div>
+    <div class="stat-card"><div class="stat-num">104</div><div class="stat-label">Total Matches</div></div>
+    <div class="stat-card"><div class="stat-num">16</div><div class="stat-label">Host Cities</div></div>
+    <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Host Nations</div></div>
+    <div class="stat-card"><div class="stat-num">39</div><div class="stat-label">Days of Play</div></div>
+  </div>
+  <div class="section-header" style="margin-top:8px;">
+    <h2>Tournament Winner Odds</h2>
+    <span class="badge">Live Forecasts</span>
+  </div>
+  <div class="favorites-table" id="favoritesTable"></div>
+</div>
+
+<!-- ===================== INJURIES PAGE ===================== -->
+<div id="page-injuries" class="page">
+  <div class="section-header">
+    <h2>Injuries & Ruled Out</h2>
+    <span class="badge" style="background:var(--red);color:#fff;">Updated May 28</span>
+  </div>
+  <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:20px;">Key players who are confirmed out, doubtful, or racing to be fit for the tournament.</p>
+  <div class="group-filter" id="injuryFilter">
+    <button class="filter-btn active" onclick="filterInjury('all', this)">All</button>
+    <button class="filter-btn" onclick="filterInjury('out', this)">Ruled Out</button>
+    <button class="filter-btn" onclick="filterInjury('doubt', this)">Doubtful</button>
+    <button class="filter-btn" onclick="filterInjury('race', this)">Racing Fit</button>
+  </div>
+  <div class="injuries-grid" id="injuriesGrid"></div>
+</div>
+
+<!-- ===================== MATCH DETAIL PAGE ===================== -->
+<div id="page-match">
+  <button class="back-btn" onclick="showPage('schedule')">&#8592; Back to Schedule</button>
+  <div id="matchDetailContent"></div>
+</div>
+
+<script>
+// ===================== DATA =====================
+
+const TEAMS = {
+  "Mexico":          { flag:"🇲🇽", group:"A", winOdds:3.2, color:"#006847" },
+  "South Africa":    { flag:"🇿🇦", group:"A", winOdds:0.4 },
+  "Korea Republic":  { flag:"🇰🇷", group:"A", winOdds:1.8 },
+  "Czechia":         { flag:"🇨🇿", group:"A", winOdds:1.5 },
+  "Canada":          { flag:"🇨🇦", group:"B", winOdds:2.1 },
+  "Bosnia-Herzegovina": { flag:"🇧🇦", group:"B", winOdds:1.0 },
+  "Qatar":           { flag:"🇶🇦", group:"B", winOdds:0.5 },
+  "Switzerland":     { flag:"🇨🇭", group:"B", winOdds:3.2 },
+  "Brazil":          { flag:"🇧🇷", group:"C", winOdds:9.2,  color:"#009c3b" },
+  "Morocco":         { flag:"🇲🇦", group:"C", winOdds:2.5 },
+  "Haiti":           { flag:"🇭🇹", group:"C", winOdds:0.3 },
+  "Scotland":        { flag:"🏴󠁧󠁢󠁳󠁣󠁴󠁿", group:"C", winOdds:0.8 },
+  "United States":   { flag:"🇺🇸", group:"D", winOdds:4.5,  color:"#b22234" },
+  "Paraguay":        { flag:"🇵🇾", group:"D", winOdds:0.9 },
+  "Australia":       { flag:"🇦🇺", group:"D", winOdds:1.2 },
+  "Türkiye":         { flag:"🇹🇷", group:"D", winOdds:2.0 },
+  "Germany":         { flag:"🇩🇪", group:"E", winOdds:7.0 },
+  "Curaçao":         { flag:"🇨🇼", group:"E", winOdds:0.2 },
+  "Ivory Coast":     { flag:"🇨🇮", group:"E", winOdds:1.4 },
+  "Ecuador":         { flag:"🇪🇨", group:"E", winOdds:0.7 },
+  "Netherlands":     { flag:"🇳🇱", group:"F", winOdds:5.5 },
+  "Japan":           { flag:"🇯🇵", group:"F", winOdds:2.8 },
+  "Sweden":          { flag:"🇸🇪", group:"F", winOdds:1.6 },
+  "Tunisia":         { flag:"🇹🇳", group:"F", winOdds:0.6 },
+  "Belgium":         { flag:"🇧🇪", group:"G", winOdds:3.8 },
+  "Egypt":           { flag:"🇪🇬", group:"G", winOdds:1.5 },
+  "Iran":            { flag:"🇮🇷", group:"G", winOdds:0.9 },
+  "New Zealand":     { flag:"🇳🇿", group:"G", winOdds:0.4 },
+  "Spain":           { flag:"🇪🇸", group:"H", winOdds:16.4, color:"#aa151b" },
+  "Cape Verde":      { flag:"🇨🇻", group:"H", winOdds:0.5 },
+  "Saudi Arabia":    { flag:"🇸🇦", group:"H", winOdds:0.8 },
+  "Uruguay":         { flag:"🇺🇾", group:"H", winOdds:2.2 },
+  "France":          { flag:"🇫🇷", group:"I", winOdds:17.9, color:"#002395" },
+  "Senegal":         { flag:"🇸🇳", group:"I", winOdds:2.0 },
+  "Iraq":            { flag:"🇮🇶", group:"I", winOdds:0.5 },
+  "Norway":          { flag:"🇳🇴", group:"I", winOdds:2.5 },
+  "Argentina":       { flag:"🇦🇷", group:"J", winOdds:8.6,  color:"#74acdf" },
+  "Algeria":         { flag:"🇩🇿", group:"J", winOdds:1.0 },
+  "Austria":         { flag:"🇦🇹", group:"J", winOdds:1.8 },
+  "Jordan":          { flag:"🇯🇴", group:"J", winOdds:0.4 },
+  "Portugal":        { flag:"🇵🇹", group:"K", winOdds:5.0 },
+  "DR Congo":        { flag:"🇨🇩", group:"K", winOdds:0.6 },
+  "Uzbekistan":      { flag:"🇺🇿", group:"K", winOdds:0.5 },
+  "Colombia":        { flag:"🇨🇴", group:"K", winOdds:2.2 },
+  "England":         { flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", group:"L", winOdds:11.4, color:"#cf142b" },
+  "Croatia":         { flag:"🇭🇷", group:"L", winOdds:2.0 },
+  "Ghana":           { flag:"🇬🇭", group:"L", winOdds:0.6 },
+  "Panama":          { flag:"🇵🇦", group:"L", winOdds:0.5 },
+};
+
+const MATCHES = [
+  // GROUP A — sources: NBC Sports / Yahoo Sports verified May 2026
+  { id:1,  group:"A", date:"Jun 11", time:"2:00 PM CT",  home:"Mexico",            away:"South Africa",      venue:"Estadio Azteca",        city:"Mexico City, MX",   matchday:1, result:{home:2,away:0,status:"ft"} },
+  { id:2,  group:"A", date:"Jun 11", time:"9:00 PM CT",  home:"Korea Republic",    away:"Czechia",           venue:"Estadio Akron",         city:"Guadalajara, MX",   matchday:1, result:{home:2,away:1,status:"ft"} },
+  { id:3,  group:"A", date:"Jun 18", time:"11:00 AM CT", home:"Czechia",           away:"South Africa",      venue:"Mercedes-Benz Stadium", city:"Atlanta, GA",       matchday:2 },
+  { id:4,  group:"A", date:"Jun 18", time:"8:00 PM CT",  home:"Mexico",            away:"Korea Republic",    venue:"Estadio Akron",         city:"Guadalajara, MX",   matchday:2 },
+  { id:5,  group:"A", date:"Jun 24", time:"8:00 PM CT",  home:"Czechia",           away:"Mexico",            venue:"Estadio Azteca",        city:"Mexico City, MX",   matchday:3 },
+  { id:6,  group:"A", date:"Jun 24", time:"8:00 PM CT",  home:"South Africa",      away:"Korea Republic",    venue:"Estadio BBVA",          city:"Monterrey, MX",     matchday:3 },
+
+  // GROUP B
+  { id:7,  group:"B", date:"Jun 12", time:"2:00 PM CT",  home:"Canada",            away:"Bosnia-Herzegovina",venue:"BMO Field",             city:"Toronto, CA",       matchday:1, result:{home:1,away:1,status:"ft"} },
+  { id:8,  group:"B", date:"Jun 13", time:"2:00 PM CT",  home:"Qatar",             away:"Switzerland",       venue:"Levi's Stadium",        city:"San Jose, CA",      matchday:1, result:{home:1,away:1,status:"ft"} },
+  { id:9,  group:"B", date:"Jun 18", time:"2:00 PM CT",  home:"Switzerland",       away:"Bosnia-Herzegovina",venue:"SoFi Stadium",          city:"Los Angeles, CA",   matchday:2 },
+  { id:10, group:"B", date:"Jun 18", time:"5:00 PM CT",  home:"Canada",            away:"Qatar",             venue:"BC Place",              city:"Vancouver, CA",     matchday:2 },
+  { id:11, group:"B", date:"Jun 24", time:"2:00 PM CT",  home:"Switzerland",       away:"Canada",            venue:"BC Place",              city:"Vancouver, CA",     matchday:3 },
+  { id:12, group:"B", date:"Jun 24", time:"2:00 PM CT",  home:"Bosnia-Herzegovina",away:"Qatar",             venue:"Lumen Field",           city:"Seattle, WA",       matchday:3 },
+
+  // GROUP C
+  { id:13, group:"C", date:"Jun 13", time:"5:00 PM CT",  home:"Brazil",            away:"Morocco",           venue:"MetLife Stadium",       city:"New York, NJ",      matchday:1, result:{home:1,away:1,status:"ft"} },
+  { id:14, group:"C", date:"Jun 13", time:"8:00 PM CT",  home:"Haiti",             away:"Scotland",          venue:"Gillette Stadium",      city:"Boston, MA",        matchday:1, result:{home:0,away:1,status:"ft"} },
+  { id:15, group:"C", date:"Jun 19", time:"5:00 PM CT",  home:"Scotland",          away:"Morocco",           venue:"Gillette Stadium",      city:"Boston, MA",        matchday:2 },
+  { id:16, group:"C", date:"Jun 19", time:"7:30 PM CT",  home:"Brazil",            away:"Haiti",             venue:"Lincoln Financial Field",city:"Philadelphia, PA", matchday:2 },
+  { id:17, group:"C", date:"Jun 24", time:"5:00 PM CT",  home:"Scotland",          away:"Brazil",            venue:"Hard Rock Stadium",     city:"Miami, FL",         matchday:3 },
+  { id:18, group:"C", date:"Jun 24", time:"5:00 PM CT",  home:"Morocco",           away:"Haiti",             venue:"Mercedes-Benz Stadium", city:"Atlanta, GA",       matchday:3 },
+
+  // GROUP D
+  { id:19, group:"D", date:"Jun 12", time:"8:00 PM CT",  home:"United States",     away:"Paraguay",          venue:"SoFi Stadium",          city:"Los Angeles, CA",   matchday:1, result:{home:4,away:1,status:"ft"} },
+  { id:20, group:"D", date:"Jun 13", time:"11:00 PM CT", home:"Australia",         away:"Türkiye",           venue:"BC Place",              city:"Vancouver, CA",     matchday:1, result:{home:2,away:0,status:"ft"} },
+  { id:21, group:"D", date:"Jun 19", time:"2:00 PM CT",  home:"United States",     away:"Australia",         venue:"Lumen Field",           city:"Seattle, WA",       matchday:2 },
+  { id:22, group:"D", date:"Jun 19", time:"11:00 PM CT", home:"Türkiye",           away:"Paraguay",          venue:"Levi's Stadium",        city:"San Jose, CA",      matchday:2 },
+  { id:23, group:"D", date:"Jun 25", time:"9:00 PM CT",  home:"Türkiye",           away:"United States",     venue:"SoFi Stadium",          city:"Los Angeles, CA",   matchday:3 },
+  { id:24, group:"D", date:"Jun 25", time:"9:00 PM CT",  home:"Paraguay",          away:"Australia",         venue:"Levi's Stadium",        city:"San Jose, CA",      matchday:3 },
+
+  // GROUP E
+  { id:25, group:"E", date:"Jun 14", time:"12:00 PM CT", home:"Germany",           away:"Curaçao",           venue:"NRG Stadium",           city:"Houston, TX",       matchday:1, result:{home:7,away:1,status:"ft"} },
+  { id:26, group:"E", date:"Jun 14", time:"6:00 PM CT",  home:"Ivory Coast",       away:"Ecuador",           venue:"Lincoln Financial Field",city:"Philadelphia, PA", matchday:1, result:{home:1,away:0,status:"ft"} },
+  { id:27, group:"E", date:"Jun 20", time:"3:00 PM CT",  home:"Germany",           away:"Ivory Coast",       venue:"BMO Field",             city:"Toronto, CA",       matchday:2 },
+  { id:28, group:"E", date:"Jun 20", time:"7:00 PM CT",  home:"Ecuador",           away:"Curaçao",           venue:"Arrowhead Stadium",     city:"Kansas City, MO",   matchday:2 },
+  { id:29, group:"E", date:"Jun 25", time:"3:00 PM CT",  home:"Curaçao",           away:"Ivory Coast",       venue:"Lincoln Financial Field",city:"Philadelphia, PA", matchday:3 },
+  { id:30, group:"E", date:"Jun 25", time:"3:00 PM CT",  home:"Ecuador",           away:"Germany",           venue:"MetLife Stadium",       city:"New York, NJ",      matchday:3 },
+
+  // GROUP F
+  { id:31, group:"F", date:"Jun 14", time:"3:00 PM CT",  home:"Netherlands",       away:"Japan",             venue:"AT&T Stadium",          city:"Dallas, TX",        matchday:1, result:{home:2,away:2,status:"ft"} },
+  { id:32, group:"F", date:"Jun 14", time:"9:00 PM CT",  home:"Sweden",            away:"Tunisia",           venue:"Estadio BBVA",          city:"Monterrey, MX",     matchday:1 },
+  { id:33, group:"F", date:"Jun 20", time:"12:00 PM CT", home:"Netherlands",       away:"Sweden",            venue:"NRG Stadium",           city:"Houston, TX",       matchday:2 },
+  { id:34, group:"F", date:"Jun 20", time:"11:00 PM CT", home:"Tunisia",           away:"Japan",             venue:"Estadio BBVA",          city:"Monterrey, MX",     matchday:2 },
+  { id:35, group:"F", date:"Jun 25", time:"6:00 PM CT",  home:"Japan",             away:"Sweden",            venue:"AT&T Stadium",          city:"Dallas, TX",        matchday:3 },
+  { id:36, group:"F", date:"Jun 25", time:"6:00 PM CT",  home:"Tunisia",           away:"Netherlands",       venue:"Arrowhead Stadium",     city:"Kansas City, MO",   matchday:3 },
+
+  // GROUP G
+  { id:37, group:"G", date:"Jun 15", time:"2:00 PM CT",  home:"Belgium",           away:"Egypt",             venue:"Lumen Field",           city:"Seattle, WA",       matchday:1 },
+  { id:38, group:"G", date:"Jun 15", time:"8:00 PM CT",  home:"Iran",              away:"New Zealand",       venue:"SoFi Stadium",          city:"Los Angeles, CA",   matchday:1 },
+  { id:39, group:"G", date:"Jun 21", time:"2:00 PM CT",  home:"Belgium",           away:"Iran",              venue:"SoFi Stadium",          city:"Los Angeles, CA",   matchday:2 },
+  { id:40, group:"G", date:"Jun 21", time:"8:00 PM CT",  home:"New Zealand",       away:"Egypt",             venue:"BC Place",              city:"Vancouver, CA",     matchday:2 },
+  { id:41, group:"G", date:"Jun 26", time:"10:00 PM CT", home:"New Zealand",       away:"Belgium",           venue:"BC Place",              city:"Vancouver, CA",     matchday:3 },
+  { id:42, group:"G", date:"Jun 26", time:"10:00 PM CT", home:"Egypt",             away:"Iran",              venue:"Lumen Field",           city:"Seattle, WA",       matchday:3 },
+
+  // GROUP H
+  { id:43, group:"H", date:"Jun 15", time:"11:00 AM CT", home:"Spain",             away:"Cape Verde",        venue:"Mercedes-Benz Stadium", city:"Atlanta, GA",       matchday:1 },
+  { id:44, group:"H", date:"Jun 15", time:"5:00 PM CT",  home:"Saudi Arabia",      away:"Uruguay",           venue:"Hard Rock Stadium",     city:"Miami, FL",         matchday:1 },
+  { id:45, group:"H", date:"Jun 21", time:"11:00 AM CT", home:"Spain",             away:"Saudi Arabia",      venue:"Mercedes-Benz Stadium", city:"Atlanta, GA",       matchday:2 },
+  { id:46, group:"H", date:"Jun 21", time:"5:00 PM CT",  home:"Uruguay",           away:"Cape Verde",        venue:"Hard Rock Stadium",     city:"Miami, FL",         matchday:2 },
+  { id:47, group:"H", date:"Jun 26", time:"7:00 PM CT",  home:"Uruguay",           away:"Spain",             venue:"Estadio Akron",         city:"Guadalajara, MX",   matchday:3 },
+  { id:48, group:"H", date:"Jun 26", time:"7:00 PM CT",  home:"Cape Verde",        away:"Saudi Arabia",      venue:"NRG Stadium",           city:"Houston, TX",       matchday:3 },
+
+  // GROUP I
+  { id:49, group:"I", date:"Jun 16", time:"2:00 PM CT",  home:"France",            away:"Senegal",           venue:"MetLife Stadium",       city:"New York, NJ",      matchday:1 },
+  { id:50, group:"I", date:"Jun 16", time:"5:00 PM CT",  home:"Iraq",              away:"Norway",            venue:"Gillette Stadium",      city:"Boston, MA",        matchday:1 },
+  { id:51, group:"I", date:"Jun 22", time:"4:00 PM CT",  home:"France",            away:"Iraq",              venue:"Lincoln Financial Field",city:"Philadelphia, PA", matchday:2 },
+  { id:52, group:"I", date:"Jun 22", time:"7:00 PM CT",  home:"Norway",            away:"Senegal",           venue:"MetLife Stadium",       city:"New York, NJ",      matchday:2 },
+  { id:53, group:"I", date:"Jun 26", time:"2:00 PM CT",  home:"Norway",            away:"France",            venue:"Gillette Stadium",      city:"Boston, MA",        matchday:3 },
+  { id:54, group:"I", date:"Jun 26", time:"2:00 PM CT",  home:"Senegal",           away:"Iraq",              venue:"BMO Field",             city:"Toronto, CA",       matchday:3 },
+
+  // GROUP J
+  { id:55, group:"J", date:"Jun 16", time:"8:00 PM CT",  home:"Argentina",         away:"Algeria",           venue:"Arrowhead Stadium",     city:"Kansas City, MO",   matchday:1 },
+  { id:56, group:"J", date:"Jun 16", time:"11:00 PM CT", home:"Austria",           away:"Jordan",            venue:"Levi's Stadium",        city:"San Jose, CA",      matchday:1 },
+  { id:57, group:"J", date:"Jun 22", time:"12:00 PM CT", home:"Argentina",         away:"Austria",           venue:"AT&T Stadium",          city:"Dallas, TX",        matchday:2 },
+  { id:58, group:"J", date:"Jun 22", time:"10:00 PM CT", home:"Jordan",            away:"Algeria",           venue:"Levi's Stadium",        city:"San Jose, CA",      matchday:2 },
+  { id:59, group:"J", date:"Jun 27", time:"9:00 PM CT",  home:"Jordan",            away:"Argentina",         venue:"AT&T Stadium",          city:"Dallas, TX",        matchday:3 },
+  { id:60, group:"J", date:"Jun 27", time:"9:00 PM CT",  home:"Algeria",           away:"Austria",           venue:"Arrowhead Stadium",     city:"Kansas City, MO",   matchday:3 },
+
+  // GROUP K
+  { id:61, group:"K", date:"Jun 17", time:"12:00 PM CT", home:"Portugal",          away:"DR Congo",          venue:"NRG Stadium",           city:"Houston, TX",       matchday:1 },
+  { id:62, group:"K", date:"Jun 17", time:"9:00 PM CT",  home:"Uzbekistan",        away:"Colombia",          venue:"Estadio Azteca",        city:"Mexico City, MX",   matchday:1 },
+  { id:63, group:"K", date:"Jun 23", time:"12:00 PM CT", home:"Portugal",          away:"Uzbekistan",        venue:"NRG Stadium",           city:"Houston, TX",       matchday:2 },
+  { id:64, group:"K", date:"Jun 23", time:"9:00 PM CT",  home:"Colombia",          away:"DR Congo",          venue:"Estadio Akron",         city:"Guadalajara, MX",   matchday:2 },
+  { id:65, group:"K", date:"Jun 27", time:"6:30 PM CT",  home:"Colombia",          away:"Portugal",          venue:"Hard Rock Stadium",     city:"Miami, FL",         matchday:3 },
+  { id:66, group:"K", date:"Jun 27", time:"6:30 PM CT",  home:"DR Congo",          away:"Uzbekistan",        venue:"Mercedes-Benz Stadium", city:"Atlanta, GA",       matchday:3 },
+
+  // GROUP L
+  { id:67, group:"L", date:"Jun 17", time:"3:00 PM CT",  home:"England",           away:"Croatia",           venue:"AT&T Stadium",          city:"Dallas, TX",        matchday:1 },
+  { id:68, group:"L", date:"Jun 17", time:"6:00 PM CT",  home:"Ghana",             away:"Panama",            venue:"BMO Field",             city:"Toronto, CA",       matchday:1 },
+  { id:69, group:"L", date:"Jun 23", time:"3:00 PM CT",  home:"England",           away:"Ghana",             venue:"Gillette Stadium",      city:"Boston, MA",        matchday:2 },
+  { id:70, group:"L", date:"Jun 23", time:"6:00 PM CT",  home:"Panama",            away:"Croatia",           venue:"BMO Field",             city:"Toronto, CA",       matchday:2 },
+  { id:71, group:"L", date:"Jun 27", time:"4:00 PM CT",  home:"Panama",            away:"England",           venue:"MetLife Stadium",       city:"New York, NJ",      matchday:3 },
+  { id:72, group:"L", date:"Jun 27", time:"4:00 PM CT",  home:"Croatia",           away:"Ghana",             venue:"Lincoln Financial Field",city:"Philadelphia, PA", matchday:3 },
+];
+
+const ROSTERS = {
+  "France": {
+    gk:  [{ num:1,  name:"Mike Maignan",        club:"AC Milan" },
+          { num:16, name:"Brice Samba",          club:"Lens" },
+          { num:23, name:"Mathis Lafont",         club:"Nantes" }],
+    def: [{ num:2,  name:"Jules Koundé",         club:"Barcelona" },
+          { num:5,  name:"William Saliba",        club:"Arsenal" },
+          { num:3,  name:"Theo Hernández",        club:"AC Milan" },
+          { num:4,  name:"Dayot Upamecano",       club:"Bayern Munich" },
+          { num:22, name:"Jonathan Clauss",       club:"Marseille" },
+          { num:21, name:"Lucas Digne",           club:"Aston Villa" }],
+    mid: [{ num:8,  name:"Aurélien Tchouaméni",  club:"Real Madrid" },
+          { num:6,  name:"Adrien Rabiot",         club:"Juventus" },
+          { num:14, name:"Antoine Griezmann",     club:"Atlético Madrid", captain:true },
+          { num:18, name:"Youssouf Fofana",       club:"AC Milan" },
+          { num:17, name:"Rayan Cherki",          club:"Manchester City" },
+          { num:24, name:"Maghnes Akliouche",     club:"Monaco" }],
+    fwd: [{ num:10, name:"Kylian Mbappé",         club:"Real Madrid" },
+          { num:11, name:"Ousmane Dembélé",       club:"PSG" },
+          { num:9,  name:"Marcus Thuram",         club:"Inter Milan" },
+          { num:20, name:"Desire Doue",           club:"PSG" },
+          { num:25, name:"Bradley Barcola",       club:"PSG" },
+          { num:7,  name:"Michael Olise",         club:"Bayern Munich" }]
+  },
+  "United States": {
+    gk:  [{ num:1,  name:"Matt Turner",           club:"Crystal Palace" },
+          { num:13, name:"Ethan Horvath",          club:"Luton Town" },
+          { num:23, name:"Patrick Schulte",        club:"Columbus Crew" }],
+    def: [{ num:2,  name:"Sergino Dest",          club:"PSV Eindhoven" },
+          { num:5,  name:"Tim Ream",               club:"Fulham" },
+          { num:3,  name:"Antonee Robinson",       club:"Fulham" },
+          { num:4,  name:"Chris Richards",         club:"Crystal Palace" },
+          { num:22, name:"Joe Scally",             club:"Borussia M'gladbach" },
+          { num:12, name:"Miles Robinson",         club:"Atlanta United" }],
+    mid: [{ num:6,  name:"Weston McKennie",       club:"Juventus", captain:true },
+          { num:8,  name:"Tyler Adams",            club:"Bournemouth" },
+          { num:14, name:"Yunus Musah",            club:"AC Milan" },
+          { num:17, name:"Christian Pulisic",      club:"AC Milan" },
+          { num:16, name:"Gio Reyna",              club:"Borussia Dortmund" },
+          { num:7,  name:"Brenden Aaronson",       club:"Leeds United" }],
+    fwd: [{ num:9,  name:"Ricardo Pepi",          club:"PSV Eindhoven" },
+          { num:11, name:"Tim Weah",               club:"Juventus" },
+          { num:10, name:"Folarin Balogun",        club:"Monaco" },
+          { num:20, name:"Josh Sargent",           club:"Norwich City" },
+          { num:21, name:"Jordan Morris",          club:"Seattle Sounders" }]
+  },
+  "Brazil": {
+    gk:  [{ num:1,  name:"Alisson Becker",        club:"Liverpool" },
+          { num:23, name:"Ederson",                club:"Manchester City" },
+          { num:12, name:"Bento",                  club:"Al-Qadsiah" }],
+    def: [{ num:2,  name:"Danilo",                club:"Juventus", captain:true },
+          { num:6,  name:"Gabriel Magalhães",     club:"Arsenal" },
+          { num:3,  name:"Guilherme Arana",        club:"Atlético Mineiro" },
+          { num:4,  name:"Marquinhos",             club:"PSG" },
+          { num:22, name:"Vanderson",              club:"Monaco" },
+          { num:13, name:"Bremer",                 club:"Juventus" }],
+    mid: [{ num:8,  name:"Bruno Guimarães",       club:"Newcastle United" },
+          { num:5,  name:"Casemiro",               club:"Manchester United" },
+          { num:16, name:"Lucas Paquetá",          club:"West Ham United" },
+          { num:17, name:"Gabriel Martinelli",     club:"Arsenal" },
+          { num:7,  name:"Raphinha",               club:"Barcelona" }],
+    fwd: [{ num:9,  name:"Endrick",               club:"Real Madrid" },
+          { num:11, name:"Gabriel Jesus",          club:"Arsenal" },
+          { num:10, name:"Neymar Jr.",             club:"Al-Hilal" },
+          { num:18, name:"Savinho",                club:"Manchester City" },
+          { num:19, name:"João Pedro",             club:"Brighton" }]
+  },
+  "England": {
+    gk:  [{ num:1,  name:"Jordan Pickford",       club:"Everton" },
+          { num:13, name:"Aaron Ramsdale",         club:"Southampton" },
+          { num:23, name:"Dean Henderson",         club:"Crystal Palace" }],
+    def: [{ num:2,  name:"Kyle Walker",            club:"Manchester City" },
+          { num:5,  name:"Harry Maguire",          club:"Manchester United" },
+          { num:3,  name:"Luke Shaw",              club:"Manchester United" },
+          { num:4,  name:"Marc Guéhi",             club:"Crystal Palace" },
+          { num:12, name:"Trent Alexander-Arnold", club:"Liverpool" },
+          { num:6,  name:"John Stones",            club:"Manchester City" }],
+    mid: [{ num:8,  name:"Declan Rice",           club:"Arsenal" },
+          { num:14, name:"Jude Bellingham",        club:"Real Madrid" },
+          { num:17, name:"Phil Foden",             club:"Manchester City" },
+          { num:16, name:"Conor Gallagher",        club:"Atlético Madrid" },
+          { num:7,  name:"Jack Grealish",          club:"Manchester City" }],
+    fwd: [{ num:9,  name:"Harry Kane",             club:"Bayern Munich", captain:true },
+          { num:11, name:"Bukayo Saka",            club:"Arsenal" },
+          { num:10, name:"Raheem Sterling",        club:"Chelsea" },
+          { num:20, name:"Marcus Rashford",        club:"Manchester United" },
+          { num:19, name:"Anthony Gordon",         club:"Newcastle United" }]
+  },
+  "Argentina": {
+    gk:  [{ num:1,  name:"Emiliano Martínez",     club:"Aston Villa" },
+          { num:23, name:"Gerónimo Rulli",         club:"Ajax" },
+          { num:12, name:"Juan Musso",             club:"Atalanta" }],
+    def: [{ num:2,  name:"Gonzalo Montiel",        club:"Nottm Forest" },
+          { num:6,  name:"Germán Pezzella",        club:"Real Betis" },
+          { num:3,  name:"Nicolás Tagliafico",     club:"Lyon" },
+          { num:4,  name:"Cristian Romero",        club:"Tottenham" },
+          { num:26, name:"Marcos Acuña",           club:"Sevilla" },
+          { num:13, name:"Nahuel Molina",          club:"Atlético Madrid" }],
+    mid: [{ num:5,  name:"Leandro Paredes",        club:"Roma" },
+          { num:20, name:"Alexis Mac Allister",    club:"Liverpool" },
+          { num:14, name:"Enzo Fernández",         club:"Chelsea" },
+          { num:17, name:"Rodrigo De Paul",        club:"Atlético Madrid" },
+          { num:7,  name:"Rodrigo De Paul",        club:"Atlético Madrid" }],
+    fwd: [{ num:10, name:"Lionel Messi",           club:"Inter Miami", captain:true },
+          { num:11, name:"Ángel Di María",         club:"Benfica" },
+          { num:9,  name:"Julián Álvarez",         club:"Atlético Madrid" },
+          { num:22, name:"Lautaro Martínez",       club:"Inter Milan" },
+          { num:18, name:"Alejandro Garnacho",     club:"Manchester United" }]
+  },
+  "Spain": {
+    gk:  [{ num:1,  name:"Unai Simón",            club:"Athletic Bilbao" },
+          { num:13, name:"David Raya",             club:"Arsenal" },
+          { num:23, name:"Álex Remiro",            club:"Real Sociedad" }],
+    def: [{ num:2,  name:"Dani Carvajal",          club:"Real Madrid" },
+          { num:4,  name:"Nacho Fernández",        club:"Al-Qadsiah" },
+          { num:3,  name:"Alejandro Balde",        club:"Barcelona" },
+          { num:6,  name:"Robin Le Normand",       club:"Atlético Madrid" },
+          { num:22, name:"Pedro Porro",            club:"Tottenham" },
+          { num:24, name:"Pau Cubarsí",            club:"Barcelona" }],
+    mid: [{ num:5,  name:"Rodri",                 club:"Manchester City", captain:true },
+          { num:8,  name:"Fabian Ruiz",            club:"PSG" },
+          { num:16, name:"Pedri",                  club:"Barcelona" },
+          { num:14, name:"Gavi",                   club:"Barcelona" },
+          { num:17, name:"Mikel Merino",           club:"Arsenal" },
+          { num:26, name:"Dani Olmo",              club:"Barcelona" }],
+    fwd: [{ num:10, name:"Lamine Yamal",           club:"Barcelona" },
+          { num:11, name:"Ferran Torres",          club:"Barcelona" },
+          { num:9,  name:"Álvaro Morata",          club:"AC Milan" },
+          { num:7,  name:"Nico Williams",          club:"Athletic Bilbao" },
+          { num:20, name:"Mikel Oyarzabal",        club:"Real Sociedad" }]
+  },
+  "Germany": {
+    gk:  [{ num:1,  name:"Manuel Neuer",           club:"Bayern Munich" },
+          { num:12, name:"Marc-André ter Stegen",  club:"Barcelona" },
+          { num:23, name:"Kevin Trapp",            club:"Eintracht Frankfurt" }],
+    def: [{ num:2,  name:"Benjamin Pavard",        club:"Inter Milan" },
+          { num:5,  name:"Thilo Kehrer",           club:"Monaco" },
+          { num:3,  name:"David Raum",             club:"RB Leipzig" },
+          { num:4,  name:"Jonathan Tah",           club:"Bayer Leverkusen" },
+          { num:6,  name:"Joshua Kimmich",         club:"Manchester City" }],
+    mid: [{ num:8,  name:"Leon Goretzka",          club:"Bayern Munich" },
+          { num:18, name:"Florian Wirtz",          club:"Bayer Leverkusen" },
+          { num:14, name:"Ilkay Gündogan",         club:"Manchester City", captain:true },
+          { num:17, name:"Leroy Sané",             club:"Bayern Munich" },
+          { num:16, name:"Kai Havertz",            club:"Arsenal" }],
+    fwd: [{ num:9,  name:"Niclas Füllkrug",        club:"Borussia Dortmund" },
+          { num:11, name:"Jamal Musiala",          club:"Bayern Munich" },
+          { num:7,  name:"Havertz",                club:"Arsenal" },
+          { num:10, name:"Thomas Müller",          club:"Bayern Munich" },
+          { num:19, name:"Deniz Undav",            club:"Stuttgart" }]
+  },
+  "Portugal": {
+    gk:  [{ num:1,  name:"Diogo Costa",            club:"Porto" },
+          { num:12, name:"José Sá",                club:"Wolves" },
+          { num:23, name:"Rui Patrício",           club:"Roma" }],
+    def: [{ num:2,  name:"João Cancelo",           club:"Barcelona" },
+          { num:5,  name:"Rúben Dias",             club:"Manchester City" },
+          { num:3,  name:"Nuno Mendes",            club:"PSG" },
+          { num:4,  name:"Pepe",                   club:"Porto" },
+          { num:22, name:"Diogo Dalot",            club:"Manchester United" }],
+    mid: [{ num:8,  name:"João Palhinha",          club:"Bayern Munich" },
+          { num:16, name:"Vitinha",                club:"PSG" },
+          { num:14, name:"Bruno Fernandes",        club:"Manchester United", captain:true },
+          { num:6,  name:"Rúben Neves",            club:"Al-Hilal" }],
+    fwd: [{ num:7,  name:"Cristiano Ronaldo",      club:"Al Nassr" },
+          { num:11, name:"Rafael Leão",            club:"AC Milan" },
+          { num:9,  name:"Gonçalo Ramos",          club:"PSG" },
+          { num:10, name:"Bernardo Silva",         club:"Manchester City" },
+          { num:17, name:"Pedro Neto",             club:"Chelsea" }]
+  },
+  "Mexico": {
+    gk:  [{ num:1,  name:"Guillermo Ochoa",        club:"Salernitana" },
+          { num:13, name:"Luis Malagón",           club:"Club América" },
+          { num:23, name:"Rodolfo Cota",           club:"Chivas" }],
+    def: [{ num:2,  name:"Jorge Sánchez",          club:"Porto" },
+          { num:3,  name:"Jesús Angulo",           club:"Tigres UANL" },
+          { num:4,  name:"Edson Álvarez",          club:"West Ham United", captain:true },
+          { num:5,  name:"César Montes",           club:"Espanyol" },
+          { num:6,  name:"Johan Vásquez",          club:"Genoa" }],
+    mid: [{ num:8,  name:"Orbelín Pineda",         club:"AEK Athens" },
+          { num:16, name:"Charly Rodríguez",       club:"Bayern Munich" },
+          { num:14, name:"Andrés Guardado",        club:"Real Betis" },
+          { num:7,  name:"Hirving Lozano",         club:"PSV Eindhoven" }],
+    fwd: [{ num:9,  name:"Raúl Jiménez",           club:"Fulham" },
+          { num:11, name:"Alexis Vega",            club:"Chivas" },
+          { num:10, name:"Rodolfo Pizarro",        club:"Inter Miami" },
+          { num:18, name:"Santiago Giménez",       club:"AC Milan" }]
+  },
+  "Morocco": {
+    gk:  [{ num:1,  name:"Yassine Bounou (Bono)", club:"Al-Hilal" },
+          { num:16, name:"Munir Mohamedi",         club:"Nantes" }],
+    def: [{ num:2,  name:"Achraf Hakimi",          club:"PSG", captain:true },
+          { num:5,  name:"Nayef Aguerd",           club:"West Ham United" },
+          { num:3,  name:"Noussair Mazraoui",      club:"Manchester United" },
+          { num:4,  name:"Romain Saïss",           club:"Besiktas" }],
+    mid: [{ num:8,  name:"Azzedine Ounahi",        club:"Marseille" },
+          { num:6,  name:"Sofyan Amrabat",         club:"Manchester United" },
+          { num:14, name:"Selim Amallah",          club:"Standard Liège" }],
+    fwd: [{ num:7,  name:"Hakim Ziyech",           club:"Galatasaray" },
+          { num:11, name:"Youssef En-Nesyri",      club:"Sevilla" },
+          { num:10, name:"Sofiane Boufal",         club:"Angers" },
+          { num:17, name:"Abdelhamid Sabiri",      club:"Fiorentina" }]
+  },
+  "Netherlands": {
+    gk:  [{ num:1,  name:"Bart Verbruggen",        club:"Brighton" },
+          { num:13, name:"Mark Flekken",           club:"Brentford" }],
+    def: [{ num:2,  name:"Denzel Dumfries",        club:"Inter Milan" },
+          { num:4,  name:"Virgil van Dijk",        club:"Liverpool", captain:true },
+          { num:3,  name:"Tyrell Malacia",         club:"Manchester United" },
+          { num:5,  name:"Nathan Aké",             club:"Manchester City" }],
+    mid: [{ num:8,  name:"Tijjani Reijnders",      club:"AC Milan" },
+          { num:6,  name:"Frenkie de Jong",        club:"Barcelona" },
+          { num:14, name:"Teun Koopmeiners",       club:"Juventus" }],
+    fwd: [{ num:10, name:"Memphis Depay",          club:"Atletico Madrid" },
+          { num:11, name:"Steven Bergwijn",        club:"Ajax" },
+          { num:9,  name:"Wout Weghorst",          club:"Hoffenheim" },
+          { num:7,  name:"Donyell Malen",          club:"Borussia Dortmund" }]
+  },
+  "South Africa": {
+    gk:  [{ num:1, name:"Ronwen Williams",         club:"Mamelodi Sundowns" }],
+    def: [{ num:5, name:"Rushine De Reuck",        club:"Mamelodi Sundowns" },
+          { num:3, name:"Sifiso Hlanti",           club:"Kaizer Chiefs" },
+          { num:2, name:"Grant Kekana",            club:"Mamelodi Sundowns" }],
+    mid: [{ num:8, name:"Themba Zwane",            club:"Mamelodi Sundowns" },
+          { num:6, name:"Ronaldo Maarman",         club:"Mamelodi Sundowns" },
+          { num:10,name:"Percy Tau",               club:"Al Ahly", captain:true }],
+    fwd: [{ num:9, name:"Evidence Makgopa",        club:"Orlando Pirates" },
+          { num:11,name:"Lyle Foster",             club:"Burnley" },
+          { num:7, name:"Lebo Mothiba",            club:"Strasbourg" }]
+  },
+  "Korea Republic": {
+    gk:  [{ num:1, name:"Jo Hyeon-woo",            club:"Ulsan Hyundai" }],
+    def: [{ num:3, name:"Kim Jin-su",              club:"Jeonbuk" },
+          { num:5, name:"Kim Min-jae",             club:"Bayern Munich" },
+          { num:2, name:"Kim Moon-hwan",           club:"Jeonbuk" }],
+    mid: [{ num:8, name:"Hwang In-beom",           club:"Fenerbahçe" },
+          { num:6, name:"Jung Woo-young",          club:"Al-Qadsiah" },
+          { num:10,name:"Lee Jae-sung",            club:"Mainz" }],
+    fwd: [{ num:7, name:"Son Heung-min",           club:"Tottenham", captain:true },
+          { num:9, name:"Hwang Hee-chan",          club:"Wolves" },
+          { num:11,name:"Cho Gue-sung",            club:"Celtic" }]
+  },
+  "Czechia": {
+    gk:  [{ num:1, name:"Jiří Staněk",             club:"Feyenoord" }],
+    def: [{ num:5, name:"Tomáš Souček",            club:"West Ham United" },
+          { num:3, name:"Jan Boril",               club:"Slavia Prague" }],
+    mid: [{ num:8, name:"Ladislav Krejčí",        club:"Bologna" },
+          { num:6, name:"Lukáš Provod",           club:"Slavia Prague" }],
+    fwd: [{ num:10,name:"Patrik Schick",           club:"Bayer Leverkusen", captain:true },
+          { num:7, name:"Ondřej Lingr",           club:"Feyenoord" },
+          { num:9, name:"Adam Hložek",            club:"Bayer Leverkusen" }]
+  },
+  "Paraguay": {
+    gk:  [{ num:1, name:"Antony Silva",            club:"Club Olimpia" }],
+    def: [{ num:3, name:"Gustavo Velázquez",       club:"Flamengo" },
+          { num:5, name:"Omar Alderete",           club:"Valencia" }],
+    mid: [{ num:8, name:"Miguel Almirón",          club:"Newcastle United" },
+          { num:6, name:"Ángel Cardozo Lucena",   club:"Olimpia" }],
+    fwd: [{ num:9, name:"Óscar Ruiz",              club:"Nacional" },
+          { num:10,name:"Julio Enciso",            club:"Brighton", captain:true },
+          { num:11,name:"Antonio Sanabria",        club:"Torino" }]
+  },
+  "Australia": {
+    gk:  [{ num:1, name:"Mathew Ryan",             club:"Real Sociedad" }],
+    def: [{ num:5, name:"Harry Souttar",           club:"Leicester City" },
+          { num:3, name:"Miloš Degenek",           club:"Columbus Crew" }],
+    mid: [{ num:8, name:"Jackson Irvine",          club:"St Pauli" },
+          { num:6, name:"Ajdin Hrustic",           club:"Hellas Verona" }],
+    fwd: [{ num:10,name:"Martin Boyle",            club:"Al-Fayha" },
+          { num:11,name:"Mitch Duke",              club:"Fagiano Okayama" },
+          { num:9, name:"Adam Taggart",            club:"Cerezo Osaka", captain:true }]
+  },
+  "Türkiye": {
+    gk:  [{ num:1, name:"Mert Günok",              club:"Besiktas" }],
+    def: [{ num:3, name:"Ferdi Kadıoğlu",         club:"Brighton" },
+          { num:5, name:"Samet Akaydin",          club:"Real Sociedad" }],
+    mid: [{ num:8, name:"Hakan Çalhanoğlu",       club:"Inter Milan", captain:true },
+          { num:6, name:"Kaan Ayhan",             club:"Galatasaray" }],
+    fwd: [{ num:10,name:"Kerem Aktürkoğlu",       club:"Galatasaray" },
+          { num:11,name:"Baris Alper Yilmaz",     club:"Galatasaray" },
+          { num:9, name:"Cenk Tosun",             club:"Beşiktaş" }]
+  },
+  "Canada": {
+    gk:  [{ num:1, name:"Maxime Crépeau",          club:"LA Galaxy" }],
+    def: [{ num:3, name:"Richie Laryea",           club:"Nottm Forest" },
+          { num:5, name:"Steven Vitória",          club:"SC Braga" }],
+    mid: [{ num:8, name:"Stephen Eustáquio",       club:"Porto" },
+          { num:6, name:"Mark-Anthony Kaye",       club:"Seattle Sounders" }],
+    fwd: [{ num:9, name:"Jonathan David",          club:"LOSC Lille", captain:true },
+          { num:10,name:"Alphonso Davies",         club:"Bayern Munich" },
+          { num:11,name:"Cyle Larin",              club:"Mallorca" }]
+  },
+  "Senegal": {
+    gk:  [{ num:1, name:"Seny Dieng",              club:"Middlesbrough" }],
+    def: [{ num:5, name:"Kalidou Koulibaly",       club:"Chelsea", captain:true },
+          { num:3, name:"Ismail Jakobs",           club:"Monaco" }],
+    mid: [{ num:8, name:"Nampalys Mendy",          club:"Leicester City" },
+          { num:6, name:"Pape Matar Sarr",         club:"Tottenham" }],
+    fwd: [{ num:10,name:"Sadio Mané",              club:"Al-Nassr" },
+          { num:11,name:"Ismaïla Sarr",            club:"Crystal Palace" },
+          { num:7, name:"Iliman Ndiaye",           club:"Everton" }]
+  },
+  "Norway": {
+    gk:  [{ num:1, name:"Ørjan Nyland",            club:"Stade Rennais" }],
+    def: [{ num:3, name:"Birger Meling",           club:"Rennes" },
+          { num:5, name:"Leo Skiri Østigård",      club:"Napoli" }],
+    mid: [{ num:8, name:"Sander Berge",            club:"Fulham" },
+          { num:6, name:"Martin Ødegaard",         club:"Arsenal", captain:true }],
+    fwd: [{ num:9, name:"Erling Haaland",          club:"Manchester City" },
+          { num:10,name:"Alexander Sørloth",       club:"Atlético Madrid" },
+          { num:7, name:"Mohamed Elyounoussi",     club:"Celtic" }]
+  },
+  "Belgium": {
+    gk:  [{ num:1, name:"Koen Casteels",           club:"Al-Qadsiah" }],
+    def: [{ num:3, name:"Leandro Trossard",        club:"Arsenal" },
+          { num:5, name:"Jan Vertonghen",          club:"Anderlecht", captain:true }],
+    mid: [{ num:8, name:"Youri Tielemans",         club:"Aston Villa" },
+          { num:6, name:"Kevin De Bruyne",         club:"Manchester City" }],
+    fwd: [{ num:9, name:"Romelu Lukaku",           club:"Napoli" },
+          { num:10,name:"Dodi Lukebakio",          club:"Sevilla" },
+          { num:7, name:"Lois Openda",             club:"RB Leipzig" }]
+  },
+  "Croatia": {
+    gk:  [{ num:1, name:"Dominik Livaković",       club:"Fenerbahçe" }],
+    def: [{ num:3, name:"Borna Sosa",              club:"Ajax" },
+          { num:5, name:"Joško Gvardiol",          club:"Manchester City" }],
+    mid: [{ num:8, name:"Luka Modrić",             club:"Real Madrid", captain:true },
+          { num:6, name:"Mateo Kovačić",           club:"Manchester City" },
+          { num:10,name:"Marcelo Brozović",        club:"Al-Nassr" }],
+    fwd: [{ num:9, name:"Andrej Kramarić",         club:"Hoffenheim" },
+          { num:11,name:"Bruno Petković",          club:"Dinamo Zagreb" },
+          { num:7, name:"Ivan Perišić",            club:"Hajduk Split" }]
+  },
+  "Japan": {
+    gk:  [{ num:1, name:"Shuichi Gonda",           club:"Shimizu S-Pulse" }],
+    def: [{ num:3, name:"Yuto Nagatomo",           club:"FC Tokyo" },
+          { num:5, name:"Ko Itakura",              club:"Borussia M'gladbach" }],
+    mid: [{ num:8, name:"Wataru Endō",             club:"Liverpool" },
+          { num:6, name:"Daichi Kamada",           club:"Lazio" }],
+    fwd: [{ num:9, name:"Kaoru Mitoma",            club:"Brighton" },
+          { num:10,name:"Takefusa Kubo",           club:"Real Sociedad", captain:true },
+          { num:7, name:"Junya Ito",               club:"Reims" }]
+  },
+  "Switzerland": {
+    gk:  [{ num:1, name:"Yann Sommer",             club:"Inter Milan" }],
+    def: [{ num:3, name:"Ricardo Rodríguez",       club:"Torino" },
+          { num:5, name:"Manuel Akanji",           club:"Manchester City" }],
+    mid: [{ num:8, name:"Granit Xhaka",            club:"Bayer Leverkusen", captain:true },
+          { num:6, name:"Remo Freuler",            club:"Bologna" }],
+    fwd: [{ num:9, name:"Breel Embolo",            club:"Monaco" },
+          { num:10,name:"Xherdan Shaqiri",         club:"Chicago Fire" },
+          { num:7, name:"Haris Seferović",         club:"Fenerbahçe" }]
+  },
+  "Uruguay": {
+    gk:  [{ num:1, name:"Sergio Rochet",           club:"Inter Milan" }],
+    def: [{ num:3, name:"Mathías Olivera",         club:"Napoli" },
+          { num:5, name:"Sebastián Coates",        club:"Sporting CP" }],
+    mid: [{ num:8, name:"Federico Valverde",       club:"Real Madrid" },
+          { num:6, name:"Rodrigo Bentancur",       club:"Tottenham" },
+          { num:10,name:"Giorgian de Arrascaeta",  club:"Flamengo" }],
+    fwd: [{ num:9, name:"Edinson Cavani",          club:"Boca Juniors" },
+          { num:11,name:"Darwin Núñez",            club:"Liverpool", captain:true },
+          { num:7, name:"Facundo Torres",          club:"Orlando City" }]
+  },
+  "Colombia": {
+    gk:  [{ num:1, name:"David Ospina",            club:"Al-Qadsiah" }],
+    def: [{ num:3, name:"Johan Mojica",            club:"Olympiacos" },
+          { num:5, name:"Davinson Sánchez",        club:"Galatasaray" }],
+    mid: [{ num:8, name:"Wilmar Barrios",          club:"Zenit" },
+          { num:6, name:"Mateus Uribe",            club:"Porto" }],
+    fwd: [{ num:9, name:"Rafael Santos Borré",     club:"Eintracht Frankfurt" },
+          { num:10,name:"James Rodríguez",         club:"Rayo Vallecano", captain:true },
+          { num:11,name:"Luis Díaz",               club:"Liverpool" }]
+  }
+};
+
+// Fill missing teams with placeholder
+const ALL_TEAM_NAMES = Object.keys(TEAMS);
+ALL_TEAM_NAMES.forEach(t => { if (!ROSTERS[t]) ROSTERS[t] = { gk:[], def:[], mid:[], fwd:[] }; });
+
+// Win probability for tournament (polymarket / betting avg)
+const WIN_PROBS = [
+  { team:"France",       flag:"🇫🇷", prob:17.9, odds:"+457"  },
+  { team:"Spain",        flag:"🇪🇸", prob:16.4, odds:"+508"  },
+  { team:"England",      flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", prob:11.4, odds:"+774"  },
+  { team:"Brazil",       flag:"🇧🇷", prob:9.2,  odds:"+970"  },
+  { team:"Argentina",    flag:"🇦🇷", prob:8.6,  odds:"+1050" },
+  { team:"Germany",      flag:"🇩🇪", prob:7.0,  odds:"+1300" },
+  { team:"Netherlands",  flag:"🇳🇱", prob:5.5,  odds:"+1700" },
+  { team:"Portugal",     flag:"🇵🇹", prob:5.0,  odds:"+1900" },
+  { team:"United States",flag:"🇺🇸", prob:4.5,  odds:"+2100" },
+  { team:"Mexico",       flag:"🇲🇽", prob:3.2,  odds:"+3000" },
+  { team:"Belgium",      flag:"🇧🇪", prob:3.8,  odds:"+2500" },
+  { team:"Uruguay",      flag:"🇺🇾", prob:2.2,  odds:"+4400" },
+  { team:"Colombia",     flag:"🇨🇴", prob:2.2,  odds:"+4400" },
+  { team:"Japan",        flag:"🇯🇵", prob:2.8,  odds:"+3400" },
+  { team:"Norway",       flag:"🇳🇴", prob:2.5,  odds:"+3900" },
+  { team:"Morocco",      flag:"🇲🇦", prob:2.5,  odds:"+3900" },
+  { team:"Senegal",      flag:"🇸🇳", prob:2.0,  odds:"+4900" },
+  { team:"Canada",       flag:"🇨🇦", prob:2.1,  odds:"+4600" },
+  { team:"Korea Republic",flag:"🇰🇷", prob:1.8, odds:"+5400" },
+];
+
+const INJURIES = [
+  // ── CONFIRMED OUT ──
+  { player:"Rodrygo",           flag:"🇧🇷", nation:"Brazil",       pos:"FWD", club:"Real Madrid",         injury:"Torn ACL + right meniscus",        status:"out",   details:"Torn in April. Surgery completed. Out until late 2026. Left off final squad." },
+  { player:"Éder Militão",      flag:"🇧🇷", nation:"Brazil",       pos:"DEF", club:"Real Madrid",         injury:"Hamstring tear (surgery)",         status:"out",   details:"Surgery on left thigh. Return not expected until October 2026. Ruled out." },
+  { player:"Estêvão",           flag:"🇧🇷", nation:"Brazil",       pos:"FWD", club:"Chelsea",             injury:"Hamstring injury",                 status:"out",   details:"Left off Brazil's final 26-man squad. Neymar recalled in his place." },
+  { player:"Hugo Ekitike",      flag:"🇫🇷", nation:"France",       pos:"FWD", club:"Liverpool",           injury:"Ruptured Achilles tendon",         status:"out",   details:"Ruptured Achilles vs PSG in April. Out until late 2026. Will also miss start of PL season." },
+  { player:"Serge Gnabry",      flag:"🇩🇪", nation:"Germany",      pos:"FWD", club:"Bayern Munich",       injury:"Adductor tear (right thigh)",      status:"out",   details:"Injured mid-April. Confirmed absent. Told press 'my World Cup dream is over'." },
+  { player:"Xavi Simons",       flag:"🇳🇱", nation:"Netherlands",  pos:"MID", club:"Tottenham",           injury:"Torn ACL (right knee)",            status:"out",   details:"Ruptured ACL Apr 25 vs Wolves. Surgery upcoming. Recovery ~8 months." },
+  { player:"Matthijs de Ligt",  flag:"🇳🇱", nation:"Netherlands",  pos:"DEF", club:"Manchester United",   injury:"Back surgery",                     status:"out",   details:"Six months of failed treatment ended in surgery. Out until 2026–27 season. Emotional statement posted." },
+  { player:"Samu Omorodion",    flag:"🇪🇸", nation:"Spain",        pos:"FWD", club:"Porto",               injury:"Torn ACL",                         status:"out",   details:"Injured in February. Too slow to recover. Left off Spain's squad." },
+  { player:"Johnny Cardoso",    flag:"🇺🇸", nation:"United States",pos:"MID", club:"Atlético Madrid",     injury:"High-grade ankle sprain (surgery)", status:"out",  details:"Surgery on right ankle. Not included in USA's 26-man squad announced May 26." },
+  // ── RACING TO BE FIT ──
+  { player:"Neymar",            flag:"🇧🇷", nation:"Brazil",       pos:"FWD", club:"Santos",              injury:"Grade 2 calf injury",              status:"race",  details:"Scans confirmed May 28 — grade 2 calf strain. Named in squad (replaced Estêvão). Will miss opener vs Morocco (Jun 13). Target: matchday 2 vs Haiti (Jun 19)." },
+  { player:"Lamine Yamal",      flag:"🇪🇸", nation:"Spain",        pos:"FWD", club:"Barcelona",           injury:"Hamstring (left leg)",             status:"race",  details:"Injured Apr 22 vs Celta Vigo. Included in Spain's 26-man squad. Coach optimistic for opener vs Cape Verde (Jun 15), but Jun 26 vs Uruguay more realistic if no setbacks." },
+  { player:"Alphonso Davies",   flag:"🇨🇦", nation:"Canada",       pos:"DEF", club:"Bayern Munich",       injury:"Grade 2 hamstring strain",         status:"race",  details:"Injured May 6 in CL semi vs PSG. Confirmed absent for opener vs Bosnia (Jun 12). Coach Jesse Marsch expects him available for later group stage matches." },
+  { player:"Mohamed Salah",     flag:"🇪🇬", nation:"Egypt",        pos:"FWD", club:"Liverpool",           injury:"Hamstring injury",                 status:"race",  details:"Ended Liverpool's PL season early. 4-week recovery timeline puts him on track for opener vs Belgium (Jun 15). Egypt director says WC participation is safe." },
+  // ── DOUBT / MONITORING ──
+  { player:"Kylian Mbappé",     flag:"🇫🇷", nation:"France",       pos:"FWD", club:"Real Madrid",         injury:"Minor muscle concern",             status:"doubt", details:"Being monitored by France's medical staff. Included in squad. Expected to play full tournament." },
+];
+
+// ===================== VENUE TRAVEL DATA (from Minneapolis, MN) =====================
+const VENUE_DATA = {
+  "Mexico City, MX":  { airport:"MEX", airline:"Aeromexico / Delta", flightFrom:"$258", driveHrs:"~42 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Mexico+City+june+2026" },
+  "Guadalajara, MX":  { airport:"GDL", airline:"Delta (connecting)",  flightFrom:"$285", driveHrs:"~46 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Guadalajara+june+2026" },
+  "Monterrey, MX":    { airport:"MTY", airline:"Delta (connecting)",  flightFrom:"$225", driveHrs:"~28 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Monterrey+june+2026" },
+  "Toronto, CA":      { airport:"YYZ", airline:"Air Canada",          flightFrom:"$175", driveHrs:"~14 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Toronto+june+2026" },
+  "Vancouver, CA":    { airport:"YVR", airline:"WestJet / Delta",     flightFrom:"$208", driveHrs:"~27 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Vancouver+june+2026" },
+  "Los Angeles, CA":  { airport:"LAX", airline:"Sun Country / Delta", flightFrom:"$89",  driveHrs:"~31 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Los+Angeles+june+2026" },
+  "San Jose, CA":     { airport:"SJC", airline:"Southwest / Delta",   flightFrom:"$95",  driveHrs:"~33 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+San+Jose+june+2026" },
+  "Philadelphia, PA": { airport:"PHL", airline:"Delta / American",    flightFrom:"$112", driveHrs:"~20 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Philadelphia+june+2026" },
+  "New York, NJ":     { airport:"EWR", airline:"Delta / United",      flightFrom:"$105", driveHrs:"~21 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Newark+june+2026" },
+  "Boston, MA":       { airport:"BOS", airline:"Delta / Sun Country", flightFrom:"$115", driveHrs:"~22 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Boston+june+2026" },
+  "Kansas City, MO":  { airport:"MCI", airline:"Southwest / Delta",   flightFrom:"$95",  driveHrs:"~7 hrs",  flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Kansas+City+june+2026" },
+  "Dallas, TX":       { airport:"DFW", airline:"Southwest / Delta",   flightFrom:"$82",  driveHrs:"~14 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Dallas+june+2026" },
+  "Atlanta, GA":      { airport:"ATL", airline:"Delta",               flightFrom:"$89",  driveHrs:"~18 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Atlanta+june+2026" },
+  "Houston, TX":      { airport:"IAH", airline:"Delta / Southwest",   flightFrom:"$95",  driveHrs:"~19 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Houston+june+2026" },
+  "Miami, FL":        { airport:"MIA", airline:"Delta / Southwest",   flightFrom:"$99",  driveHrs:"~26 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Miami+june+2026" },
+  "Seattle, WA":      { airport:"SEA", airline:"Delta / Alaska Air",  flightFrom:"$132", driveHrs:"~27 hrs", flightLink:"https://www.google.com/travel/flights?q=flights+from+Minneapolis+to+Seattle+june+2026" },
+};
+
+function getTicketPrices(home, away) {
+  // Uses TEAMS.winOdds which covers all 48 teams (not the 19-team WIN_PROBS list)
+  const hO = TEAMS[home]?.winOdds || 0.3;
+  const aO = TEAMS[away]?.winOdds || 0.3;
+  const sum = hO + aO;
+
+  const isUSA = home === 'United States' || away === 'United States';
+  const isHost = ['United States','Mexico','Canada'].includes(home) || ['United States','Mexico','Canada'].includes(away);
+
+  // USA opening game vs Paraguay — most expensive match in the tournament
+  if (isUSA && (home === 'Paraguay' || away === 'Paraguay'))
+    return { cat1:"$3,500", cat2:"$2,100", cat3:"$1,350" };
+
+  // All other USA home games (host nation premium)
+  if (isUSA)
+    return { cat1:"$2,200", cat2:"$1,350", cat3:"$750" };
+
+  // Mexico / Canada + notable opponent (sum > 5 means opponent has real win odds)
+  if (isHost && sum > 5)
+    return { cat1:"$1,600", cat2:"$950",   cat3:"$510" };
+
+  // Mexico / Canada + lower-ranked opponent
+  if (isHost)
+    return { cat1:"$1,050", cat2:"$640",   cat3:"$335" };
+
+  // Top-tier non-host: France, Spain (combined > 16)
+  if (sum > 16)
+    return { cat1:"$1,850", cat2:"$1,100", cat3:"$595" };
+
+  // High demand: England, Brazil, Argentina, Germany (combined 8–16)
+  if (sum > 8)
+    return { cat1:"$1,400", cat2:"$840",   cat3:"$455" };
+
+  // Medium-high: Netherlands, Portugal, Belgium (combined 5–8)
+  if (sum > 5)
+    return { cat1:"$920",   cat2:"$570",   cat3:"$305" };
+
+  // Medium: Switzerland, Korea, Morocco, Colombia (combined 3–5)
+  if (sum > 3)
+    return { cat1:"$665",   cat2:"$415",   cat3:"$225" };
+
+  // Low: most smaller nations (combined 1.5–3)
+  if (sum > 1.5)
+    return { cat1:"$495",   cat2:"$310",   cat3:"$165" };
+
+  // Very low demand: e.g. Cape Verde vs Saudi Arabia, Curaçao vs Ivory Coast
+  return   { cat1:"$390",   cat2:"$250",   cat3:"$135" };
+}
+
+// ===================== MATCH WIN PREDICTIONS (per match, estimated) =====================
+function getMatchPrediction(home, away) {
+  const h = TEAMS[home]?.winOdds || 1;
+  const a = TEAMS[away]?.winOdds || 1;
+  const total = h + a;
+  // rough model: weight by tournament win probability, add draw factor
+  let hWin = Math.round((h / total) * 58);
+  let aWin = Math.round((a / total) * 58);
+  let draw = 100 - hWin - aWin;
+  if (draw < 8) { draw = 8; hWin = Math.round((100 - 8) * h/total); aWin = 100 - 8 - hWin; }
+  return { hWin, draw, aWin };
+}
+
+// ===================== RENDER FUNCTIONS =====================
+
+function matchSortKey(m) {
+  const [mon, day] = m.date.split(' ');
+  const monthNum = mon === 'Jul' ? 7 : 6;
+  const parts = m.time.replace(' CT','').match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!parts) return monthNum * 10000 + parseInt(day) * 100;
+  let h = parseInt(parts[1]);
+  const min = parseInt(parts[2]);
+  if (parts[3].toUpperCase() === 'PM' && h !== 12) h += 12;
+  if (parts[3].toUpperCase() === 'AM' && h === 12) h = 0;
+  return monthNum * 100000 + parseInt(day) * 1000 + h * 60 + min;
+}
+
+function scoreHtml(m) {
+  const r = m.result;
+  if (r?.status === 'live') return `<div class="score-display" id="score-${m.id}"><span class="score-num">${r.home}–${r.away}</span><span class="badge-live">● LIVE</span></div>`;
+  if (r?.status === 'ft')   return `<div class="score-display" id="score-${m.id}"><span class="score-num">${r.home}–${r.away}</span><span class="badge-ft">FT</span></div>`;
+  return `<div class="vs-badge" id="score-${m.id}">VS</div>`;
+}
+
+function renderSchedule() {
+  const grid = document.getElementById('scheduleGrid');
+  const sorted = [...MATCHES].sort((a, b) => matchSortKey(a) - matchSortKey(b));
+  grid.innerHTML = sorted.map(m => {
+    const ht = TEAMS[m.home] || {};
+    const at = TEAMS[m.away] || {};
+    const cardCls = m.result?.status === 'ft' ? 'match-ft' : m.result?.status === 'live' ? 'match-live' : '';
+    return `
+    <div class="match-card ${cardCls}" data-group="${m.group}" data-id="${m.id}" onclick="showMatch(${m.id})">
+      <div class="group-tag">Group ${m.group} · Matchday ${m.matchday}</div>
+      <div class="match-teams">
+        <div class="team-side">
+          <div class="team-flag">${ht.flag||'🏳'}</div>
+          <div class="team-name">${m.home}</div>
+        </div>
+        ${scoreHtml(m)}
+        <div class="team-side">
+          <div class="team-flag">${at.flag||'🏳'}</div>
+          <div class="team-name">${m.away}</div>
+        </div>
+      </div>
+      <div class="match-meta">
+        <span>📅 ${m.date}</span>
+        <span>🕐 ${m.time}</span>
+        <span>📍 ${m.city}</span>
+      </div>
+      <div class="click-hint">View Details →</div>
+    </div>`;
+  }).join('');
+}
+
+function renderFavorites() {
+  const container = document.getElementById('favoritesTable');
+  const rows = WIN_PROBS.map((t, i) => `
+    <tr>
+      <td><span class="rank-num">${i+1}</span></td>
+      <td>${t.flag} ${t.team}</td>
+      <td>
+        <div class="prob-bar-wrap">
+          <div class="prob-bar-bg"><div class="prob-bar-fill" style="width:${(t.prob/18)*100}%"></div></div>
+          <span style="font-size:0.82rem;color:var(--accent);font-weight:700;min-width:40px">${t.prob}%</span>
+        </div>
+      </td>
+      <td style="color:var(--text-muted);font-size:0.82rem;">${t.odds}</td>
+      <td style="color:var(--text-muted);font-size:0.78rem;">Group ${TEAMS[t.team]?.group||'–'}</td>
+    </tr>`).join('');
+  container.innerHTML = `<table>
+    <thead><tr>
+      <th>#</th><th>Team</th><th>Win Probability</th><th>Odds</th><th>Group</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function renderInjuries() {
+  const grid = document.getElementById('injuriesGrid');
+  grid.innerHTML = INJURIES.map(inj => `
+    <div class="injury-card ${inj.status === 'doubt' ? 'doubt' : inj.status === 'race' ? 'race' : ''}" data-status="${inj.status}">
+      <div class="injury-top">
+        <span class="player-flag">${inj.flag}</span>
+        <div>
+          <div class="player-name">${inj.player}</div>
+          <div style="font-size:0.75rem;color:var(--text-muted)">${inj.nation} · ${inj.pos} · ${inj.club}</div>
+        </div>
+        <span class="status-pill ${inj.status === 'out' ? 'status-out' : inj.status === 'doubt' ? 'status-doubt' : 'status-race'}">
+          ${inj.status === 'out' ? 'RULED OUT' : inj.status === 'doubt' ? 'DOUBTFUL' : 'RACING FIT'}
+        </span>
+      </div>
+      <div class="injury-details">
+        <strong>${inj.injury}</strong>
+        ${inj.details}
+      </div>
+    </div>`).join('');
+}
+
+function renderRoster(teamName) {
+  const r = ROSTERS[teamName];
+  if (!r) return '<p style="color:var(--text-muted);padding:16px">Squad not yet announced.</p>';
+  const sections = [
+    { label:'GK', cls:'pos-gk', players: r.gk||[] },
+    { label:'DEF', cls:'pos-def', players: r.def||[] },
+    { label:'MID', cls:'pos-mid', players: r.mid||[] },
+    { label:'FWD', cls:'pos-fwd', players: r.fwd||[] },
+  ];
+  const items = sections.flatMap(s => s.players.map(p => `
+    <li>
+      <span class="player-num">${p.num}</span>
+      <span class="pos-badge ${s.cls}">${s.label}</span>
+      <span style="flex:1">${p.name}</span>
+      <span style="font-size:0.75rem;color:var(--text-muted)">${p.club}</span>
+      ${p.captain ? '<span class="captain-tag">© CAP</span>' : ''}
+    </li>`));
+  if (!items.length) return '<p style="color:var(--text-muted);padding:16px">Squad TBA</p>';
+  return `<ul class="roster-list">${items.join('')}</ul>`;
+}
+
+function showMatch(id) {
+  const m = MATCHES.find(x => x.id === id);
+  if (!m) return;
+  const ht = TEAMS[m.home] || {};
+  const at = TEAMS[m.away] || {};
+  const pred = getMatchPrediction(m.home, m.away);
+  const hProb = WIN_PROBS.find(x => x.team === m.home);
+  const aProb = WIN_PROBS.find(x => x.team === m.away);
+
+  const content = `
+    <div class="match-hero">
+      <div class="match-title">Group ${m.group} · Matchday ${m.matchday}</div>
+      <div class="hero-teams">
+        <div class="hero-team">
+          <div class="hero-flag">${ht.flag||'🏳'}</div>
+          <div class="hero-name">${m.home}</div>
+          ${hProb ? `<div style="font-size:0.78rem;color:var(--accent)">${hProb.prob}% WC win odds</div>` : ''}
+        </div>
+        <div class="hero-score" id="hero-score-display">
+          ${m.result?.status === 'ft'   ? `<div class="big-score">${m.result.home} – ${m.result.away}</div><span class="badge-ft" style="font-size:0.75rem;padding:3px 10px">FULL TIME</span>` :
+            m.result?.status === 'live' ? `<div class="big-score">${m.result.home} – ${m.result.away}</div><span class="badge-live" style="font-size:0.75rem;padding:3px 10px">● LIVE</span>` :
+            `<div class="hero-vs">VS</div>`}
+        </div>
+        <div class="hero-team">
+          <div class="hero-flag">${at.flag||'🏳'}</div>
+          <div class="hero-name">${m.away}</div>
+          ${aProb ? `<div style="font-size:0.78rem;color:var(--accent)">${aProb.prob}% WC win odds</div>` : ''}
+        </div>
+      </div>
+      <div class="hero-meta">
+        <span>📅 ${m.date}, 2026</span>
+        <span>🕐 ${m.time}</span>
+        <span>🏟 ${m.venue}</span>
+        <span>📍 ${m.city}</span>
+      </div>
+    </div>
+
+    <div class="prediction-section">
+      <h3 style="margin-bottom:16px">📊 Match Prediction (Based on Tournament Win Probabilities)</h3>
+      <div class="pred-bars">
+        <div class="pred-bar win1" style="flex:${pred.hWin}">${pred.hWin}%</div>
+        <div class="pred-bar draw"  style="flex:${pred.draw}">${pred.draw}%</div>
+        <div class="pred-bar win2"  style="flex:${pred.aWin}">${pred.aWin}%</div>
+      </div>
+      <div class="pred-labels">
+        <span><span class="pred-dot" style="background:var(--accent2)"></span>${m.home} Win: ${pred.hWin}%</span>
+        <span><span class="pred-dot" style="background:#6b7280"></span>Draw: ${pred.draw}%</span>
+        <span><span class="pred-dot" style="background:#dc2626"></span>${m.away} Win: ${pred.aWin}%</span>
+      </div>
+      <p style="font-size:0.75rem;color:var(--text-muted);margin-top:12px">Probabilities derived from current tournament winner odds (Polymarket / betting markets). Not official forecasts.</p>
+    </div>
+
+    ${(() => {
+      const v = VENUE_DATA[m.city] || {};
+      const tp = getTicketPrices(m.home, m.away);
+      const seatgeekUrl = 'https://seatgeek.com/fifa-world-cup-group-stage-tickets';
+      const stubhubUrl  = 'https://www.stubhub.com/world-cup-tickets/grouping/45410';
+      return v.flightFrom ? `
+    <div class="travel-section">
+      <h3>✈️ Getting There &amp; Tickets</h3>
+      <div class="travel-grid">
+        <div class="travel-card">
+          <div class="tc-label">🎟 Ticket Prices · ${m.venue}</div>
+          <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(232,160,32,0.08);border:1px solid rgba(232,160,32,0.3);border-radius:6px;padding:6px 10px">
+              <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase">Cat 1 · Pitch-side</span>
+              <span style="font-size:1rem;font-weight:800;color:var(--accent)">${tp.cat1}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(30,144,255,0.08);border:1px solid rgba(30,144,255,0.3);border-radius:6px;padding:6px 10px">
+              <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase">Cat 2 · Mid-bowl</span>
+              <span style="font-size:1rem;font-weight:800;color:var(--accent2)">${tp.cat2}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:6px;padding:6px 10px">
+              <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase">Cat 3 · Upper deck</span>
+              <span style="font-size:1rem;font-weight:800;color:var(--green)">${tp.cat3}</span>
+            </div>
+          </div>
+          <a class="tc-link ticket-link" href="${seatgeekUrl}" target="_blank">SeatGeek →</a>
+          &nbsp;
+          <a class="tc-link ticket-link" href="${stubhubUrl}" target="_blank">StubHub →</a>
+        </div>
+        <div class="travel-card">
+          <div class="tc-label">✈️ Flight from Minneapolis (MSP)</div>
+          <div class="tc-price">${v.flightFrom}</div>
+          <div class="tc-sub">→ ${v.airport}<br>${v.airline}</div>
+          <a class="tc-link" href="${v.flightLink}" target="_blank">Search Google Flights →</a>
+        </div>
+        <div class="travel-card">
+          <div class="tc-label">🚗 Drive from Minneapolis</div>
+          <div class="tc-price" style="color:var(--text);font-size:1.3rem">${v.driveHrs}</div>
+          <div class="tc-sub">to ${m.city}<br>via interstate highways</div>
+          <a class="tc-link" href="https://www.google.com/maps/dir/Minneapolis,+MN/${encodeURIComponent(m.venue+', '+m.city)}" target="_blank">Google Maps →</a>
+        </div>
+      </div>
+      <p class="travel-disclaimer">* Ticket prices are resale market estimates (StubHub / SeatGeek) as of May 2026. Cat 1 = lower bowl/halfway line · Cat 2 = mid-bowl · Cat 3 = upper deck/end zones. Prices fluctuate with demand — check links for live pricing. Flight prices are estimates and may vary.</p>
+    </div>` : '';
+    })()}
+
+    <div class="rosters-grid">
+      <div class="roster-card">
+        <div class="roster-header">
+          <span class="flag">${ht.flag||'🏳'}</span>
+          <h4>${m.home}</h4>
+          ${hProb ? `<span class="win-odds">WC: ${hProb.prob}%</span>` : ''}
+        </div>
+        ${renderRoster(m.home)}
+        ${m.home === 'Argentina' ? `<div style="padding:14px;border-top:1px solid var(--border);text-align:center"><img src="AgosWCChampion.jpeg" alt="Argentina WC Champion" style="width:100%;max-width:380px;border-radius:8px;display:block;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,0.5)"></div>` : ''}
+      </div>
+      <div class="roster-card">
+        <div class="roster-header">
+          <span class="flag">${at.flag||'🏳'}</span>
+          <h4>${m.away}</h4>
+          ${aProb ? `<span class="win-odds">WC: ${aProb.prob}%</span>` : ''}
+        </div>
+        ${renderRoster(m.away)}
+        ${m.away === 'Argentina' ? `<div style="padding:14px;border-top:1px solid var(--border);text-align:center"><img src="AgosWCChampion.jpeg" alt="Argentina WC Champion" style="width:100%;max-width:380px;border-radius:8px;display:block;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,0.5)"></div>` : ''}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('matchDetailContent').innerHTML = content;
+  document.querySelectorAll('.page, #page-match').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-match').classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  window.scrollTo(0, 0);
+}
+
+// ===================== NAV + FILTERS =====================
+
+function showPage(name) {
+  document.querySelectorAll('.page, #page-match').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const btns = document.querySelectorAll('.nav-btn');
+  btns.forEach(b => { if (b.textContent.toLowerCase().includes(name === 'overview' ? 'overview' : name === 'injuries' ? 'injur' : 'schedule')) b.classList.add('active'); });
+  window.scrollTo(0, 0);
+}
+
+let activeGroup = 'all';
+
+function filterGroup(group, btn) {
+  document.querySelectorAll('#groupFilter .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeGroup = group;
+  applyFilters();
+}
+
+function applyFilters() {
+  const nationQ = (document.getElementById('nationSearch')?.value || '').toLowerCase().trim();
+  const checkedCities = [...document.querySelectorAll('#cityCheckboxes input:checked')].map(cb => cb.value);
+  let activeCount = (nationQ ? 1 : 0) + (checkedCities.length ? 1 : 0) + (activeGroup !== 'all' ? 1 : 0);
+
+  const badge = document.getElementById('filterCountBadge');
+  const openBtn = document.getElementById('filterOpenBtn');
+  if (badge) { badge.textContent = activeCount; badge.style.display = activeCount > 0 ? 'inline-flex' : 'none'; }
+  if (openBtn) { activeCount > 0 ? openBtn.classList.add('has-filters') : openBtn.classList.remove('has-filters'); }
+
+  let anyVisible = false;
+  document.querySelectorAll('.match-card').forEach(card => {
+    const m = MATCHES.find(x => x.id === parseInt(card.dataset.id));
+    if (!m) return;
+    const groupOk = activeGroup === 'all' || m.group === activeGroup;
+    const nationOk = !nationQ || m.home.toLowerCase().includes(nationQ) || m.away.toLowerCase().includes(nationQ);
+    const cityOk = checkedCities.length === 0 || checkedCities.includes(m.city);
+    const show = groupOk && nationOk && cityOk;
+    card.classList.toggle('hidden', !show);
+    if (show) anyVisible = true;
+  });
+
+  let noRes = document.getElementById('noResults');
+  if (!anyVisible) {
+    if (!noRes) {
+      noRes = document.createElement('div');
+      noRes.id = 'noResults';
+      noRes.className = 'no-results';
+      noRes.textContent = 'No matches found. Try adjusting your filters.';
+      document.getElementById('scheduleGrid').appendChild(noRes);
+    }
+  } else if (noRes) noRes.remove();
+}
+
+function openFilterPanel() {
+  document.getElementById('filterSidebar').classList.add('open');
+  document.getElementById('filterOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeFilterPanel() {
+  document.getElementById('filterSidebar').classList.remove('open');
+  document.getElementById('filterOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function clearFilters() {
+  document.getElementById('nationSearch').value = '';
+  document.querySelectorAll('#cityCheckboxes input').forEach(cb => cb.checked = false);
+  document.querySelectorAll('#groupFilter .filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('#groupFilter .filter-btn').classList.add('active');
+  activeGroup = 'all';
+  applyFilters();
+}
+
+function initFilterSidebar() {
+  const cities = [...new Set(MATCHES.map(m => m.city))].sort();
+  document.getElementById('cityCheckboxes').innerHTML = cities.map(city => `
+    <label class="city-checkbox">
+      <input type="checkbox" value="${city}" onchange="applyFilters()">
+      <span>${city}</span>
+    </label>`).join('');
+}
+
+function filterInjury(status, btn) {
+  document.querySelectorAll('#injuryFilter .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.injury-card').forEach(card => {
+    if (status === 'all' || card.dataset.status === status) card.classList.remove('hidden');
+    else card.classList.add('hidden');
+  });
+}
+
+// ===================== LIVE SCORES =====================
+const ESPN_NAMES = {
+  'South Korea':'Korea Republic', 'Czech Republic':'Czechia',
+  'Bosnia and Herzegovina':'Bosnia-Herzegovina', 'Bosnia-Herzegowina':'Bosnia-Herzegovina',
+  'Turkey':'Türkiye', 'Curacao':'Curaçao', 'Ivory Coast':"Ivory Coast",
+  'Congo':'DR Congo', 'Democratic Republic of Congo':'DR Congo',
+  'New Zealand':'New Zealand', 'Iran':'Iran',
+};
+function espnName(n) { return ESPN_NAMES[n] || n; }
+
+async function fetchLiveScores() {
+  try {
+    const r = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard');
+    if (!r.ok) return false;
+    const data = await r.json();
+    let hasLive = false;
+
+    for (const ev of (data.events || [])) {
+      const comp = ev.competitions?.[0];
+      if (!comp) continue;
+      const home = comp.competitors?.find(c => c.homeAway === 'home');
+      const away = comp.competitors?.find(c => c.homeAway === 'away');
+      if (!home || !away) continue;
+
+      const hn = espnName(home.team.displayName);
+      const an = espnName(away.team.displayName);
+      const state = ev.status?.type?.state;
+
+      const m = MATCHES.find(x =>
+        (x.home === hn && x.away === an) || (x.home === an && x.away === hn)
+      );
+      if (!m) continue;
+
+      const flipped = m.home !== hn;
+      const hs = parseInt(flipped ? away.score : home.score) || 0;
+      const as_ = parseInt(flipped ? home.score : away.score) || 0;
+
+      if (state === 'in') {
+        m.result = { home: hs, away: as_, status: 'live', clock: ev.status?.displayClock };
+        hasLive = true;
+      } else if (state === 'post' || ev.status?.type?.completed) {
+        if (!m.result || m.result.status !== 'ft') {
+          m.result = { home: hs, away: as_, status: 'ft' };
+        }
+      }
+
+      // patch card in-place
+      const scoreEl = document.getElementById(`score-${m.id}`);
+      if (scoreEl) scoreEl.outerHTML = scoreHtml(m);
+      const card = document.querySelector(`.match-card[data-id="${m.id}"]`);
+      if (card) {
+        card.classList.toggle('match-ft',   m.result?.status === 'ft');
+        card.classList.toggle('match-live', m.result?.status === 'live');
+      }
+    }
+    updateLiveTicker();
+    return hasLive;
+  } catch(e) {
+    console.warn('Live scores fetch failed:', e);
+    return false;
+  }
+}
+
+function updateLiveTicker() {
+  const live = MATCHES.filter(m => m.result?.status === 'live');
+  let ticker = document.getElementById('liveTicker');
+  if (live.length > 0) {
+    if (!ticker) {
+      ticker = document.createElement('div');
+      ticker.id = 'liveTicker';
+      ticker.className = 'live-ticker';
+      const grid = document.getElementById('scheduleGrid');
+      grid?.parentNode?.insertBefore(ticker, grid);
+    }
+    ticker.innerHTML = `<div class="live-dot"></div><strong>LIVE NOW:</strong>&nbsp;${live.map(m=>`${TEAMS[m.home]?.flag||''} ${m.home} <strong>${m.result.home}–${m.result.away}</strong> ${m.away} ${TEAMS[m.away]?.flag||''}`).join('&nbsp; · &nbsp;')}`;
+  } else if (ticker) {
+    ticker.remove();
+  }
+}
+
+let _liveTimer = null;
+function startLivePolling() {
+  fetchLiveScores();
+  if (_liveTimer) return;
+  _liveTimer = setInterval(fetchLiveScores, 30000);
+}
+
+// ===================== INIT =====================
+renderSchedule();
+renderFavorites();
+renderInjuries();
+initFilterSidebar();
+startLivePolling();
+</script>
+</body>
+</html>
