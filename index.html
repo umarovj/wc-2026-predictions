@@ -674,6 +674,7 @@
       </button>
     </div>
   </div>
+  <p id="lastUpdatedBanner" style="font-size:0.75rem;color:var(--text-muted);margin-bottom:14px;margin-top:-6px;"></p>
   <div class="group-filter" id="groupFilter">
     <button class="filter-btn active" onclick="filterGroup('all', this)">All Groups</button>
     <button class="filter-btn" onclick="filterGroup('A', this)">Group A</button>
@@ -1835,6 +1836,17 @@ function startLivePolling() {
 }
 
 // ===================== INIT =====================
+(function() {
+  const d = new Date(document.lastModified);
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const min = String(d.getMinutes()).padStart(2,'0');
+  const el = document.getElementById('lastUpdatedBanner');
+  if (el) el.textContent = `Last updated: ${mm}/${dd}/${yyyy} ${hh}:${min}`;
+})();
+
 renderSchedule();
 renderFavorites();
 renderInjuries();
