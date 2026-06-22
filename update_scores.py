@@ -15,9 +15,16 @@ TEAM_MAP = {
     "Curacao":                      "Curaçao",
     "Congo":                        "DR Congo",
     "Democratic Republic of Congo": "DR Congo",
+    "Congo DR":                     "DR Congo",
+    "DR Congo":                     "DR Congo",
+    "Republic of Congo":            "DR Congo",
     "Cote d'Ivoire":                "Ivory Coast",
     "Côte d'Ivoire":                "Ivory Coast",
+    "Ivory Coast":                  "Ivory Coast",
     "UAE":                          "United Arab Emirates",
+    "New Zealand":                  "New Zealand",
+    "Korea Republic":               "Korea Republic",
+    "Austria":                      "Austria",
 }
 
 def norm(name):
