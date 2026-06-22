@@ -1,0 +1,40 @@
+name: Auto-Update Injury List
+
+on:
+  schedule:
+    - cron: "0 9 * * *"    # 9:00 AM UTC (4 AM CT) every day
+  workflow_dispatch:         # manual trigger from GitHub Actions tab
+
+jobs:
+  update-injuries:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests anthropic
+
+      - name: Update injury list
+        id: injuries
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python update_injuries.py
+        continue-on-error: true
+
+      - name: Commit and push if changed
+        if: steps.injuries.outcome == 'success'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Auto-update injury list $(date -u '+%Y-%m-%d')"
+          git push
