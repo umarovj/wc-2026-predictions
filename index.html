@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FIFA World Cup 2026 Predictions Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
   :root {
     --bg: #0a0e1a;
@@ -808,7 +809,12 @@
     <h2>R16 Bracket Challenge</h2>
     <span class="badge" style="background:var(--accent2);color:#fff">Your Picks</span>
   </div>
-  <p class="bracket-note">Fill in your predictions — nothing is saved, picks reset when you close the tab.</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+    <p class="bracket-note" style="margin:0;flex:1">Fill in your predictions — nothing is saved, picks reset when you close the tab.</p>
+    <button id="downloadBracketBtn" onclick="downloadBracket()" style="background:var(--green);border:none;color:#000;padding:9px 18px;border-radius:var(--radius);font-weight:700;font-size:0.88rem;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0;transition:opacity 0.2s" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+      📥 Save as Image
+    </button>
+  </div>
   <div class="bracket-outer">
    <div class="bracket-row">
 
@@ -1958,6 +1964,51 @@ function showMatch(id) {
   document.getElementById('page-match').classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   window.scrollTo(0, 0);
+}
+
+// ===================== BRACKET DOWNLOAD =====================
+async function downloadBracket() {
+  if (typeof html2canvas === 'undefined') {
+    alert('Image library still loading — try again in a moment.');
+    return;
+  }
+  const btn = document.getElementById('downloadBracketBtn');
+  btn.textContent = '⏳ Capturing…';
+  btn.disabled = true;
+
+  const page   = document.getElementById('page-bracket');
+  const outer  = page.querySelector('.bracket-outer');
+
+  // Temporarily expand overflow so the full bracket width is captured
+  const prevOverflow = outer.style.overflowX;
+  outer.style.overflowX = 'visible';
+
+  try {
+    const canvas = await html2canvas(page, {
+      backgroundColor: '#0a0e1a',   // --bg colour
+      scale: 2,                      // 2× for crisp retina output
+      useCORS: true,
+      logging: false,
+      scrollX: 0,
+      scrollY: -window.scrollY,
+      width:       page.scrollWidth,
+      windowWidth: page.scrollWidth + 40,
+    });
+
+    // Trigger download
+    const link = document.createElement('a');
+    const now  = new Date();
+    const stamp = `${now.getMonth()+1}-${now.getDate()}-${now.getFullYear()}`;
+    link.download = `WC2026-Bracket-${stamp}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (err) {
+    alert('Could not capture bracket: ' + err.message);
+  } finally {
+    outer.style.overflowX = prevOverflow;
+    btn.innerHTML = '📥 Save as Image';
+    btn.disabled = false;
+  }
 }
 
 // ===================== BRACKET CHALLENGE =====================
