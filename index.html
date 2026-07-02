@@ -505,6 +505,55 @@
 
   .hidden { display: none !important; }
 
+  /* BRACKET CHALLENGE */
+  .bracket-note { font-size:0.82rem; color:var(--text-muted); margin-bottom:20px; padding:10px 14px; background:var(--surface2); border-left:3px solid var(--accent2); border-radius:0 6px 6px 0; }
+  .bracket-outer { overflow-x:auto; padding-bottom:24px; }
+  .bracket-row   { display:flex; align-items:stretch; min-width:980px; }
+  .b-col         { display:flex; flex-direction:column; flex-shrink:0; }
+  .b-col-r16     { width:196px; }
+  .b-col-qf, .b-col-sf { width:188px; }
+  .b-col-fin     { width:218px; }
+  .b-col-gap     { width:28px; display:flex; flex-direction:column; flex-shrink:0; }
+  .b-col-label   { font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:var(--accent); padding-bottom:10px; text-align:center; flex-shrink:0; }
+  /* pair = 2 R16 matches that feed one QF */
+  .b-pair        { display:flex; flex-direction:column; flex:1; position:relative; }
+  /* QF / SF singles aligned to pair midpoints */
+  .b-single      { display:flex; flex-direction:column; flex:1; justify-content:center; position:relative; }
+  /* connector lines */
+  .b-col-gap .gap-line { flex:1; border-right:1px solid var(--border); margin:0 50%; }
+  .b-col-gap .gap-mid  { height:1px; background:var(--border); width:100%; flex-shrink:0; }
+  /* match card */
+  .b-card        { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px; margin:4px 6px; }
+  .b-card-lbl    { font-size:0.6rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:7px; }
+  .b-team-row    { display:flex; align-items:center; padding:3px 0; border-bottom:1px solid rgba(42,53,80,0.5); }
+  .b-team-row:last-of-type { border-bottom:none; }
+  .b-team-in     { background:transparent; border:none; color:var(--text); font-size:0.82rem; width:100%; outline:none; padding:2px 4px; }
+  .b-team-in::placeholder { color:var(--text-muted); }
+  .b-team-dsp    { font-size:0.82rem; padding:2px 4px; color:var(--text-muted); font-style:italic; width:100%; }
+  .b-team-dsp.filled { color:var(--text); font-style:normal; font-weight:600; }
+  .b-pick-sec    { margin-top:8px; padding-top:7px; border-top:1px solid var(--border); }
+  .b-pick-lbl    { font-size:0.6rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; }
+  .b-sel         { width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:5px 8px; border-radius:6px; font-size:0.79rem; cursor:pointer; outline:none; }
+  .b-sel:focus   { border-color:var(--accent); }
+  .b-sel.picked  { border-color:var(--accent); color:var(--accent); }
+  /* score prediction */
+  .score-pred-wrap  { margin-top:10px; }
+  .score-pred-title { font-size:0.62rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:var(--accent); margin-bottom:8px; }
+  .score-pred-row   { display:flex; align-items:center; gap:6px; }
+  .score-pred-nm    { flex:1; font-size:0.75rem; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .score-pred-nm.r  { text-align:right; }
+  .b-score-in       { width:38px; background:var(--surface2); border:1px solid var(--border); color:var(--text); text-align:center; padding:5px 4px; border-radius:6px; font-size:0.95rem; font-weight:700; outline:none; }
+  .b-score-in:focus { border-color:var(--accent); }
+  .score-vs         { color:var(--text-muted); font-size:0.8rem; }
+  .tie-section      { margin-top:9px; padding-top:9px; border-top:1px dashed var(--border); }
+  .tie-lbl          { font-size:0.68rem; color:var(--yellow); margin-bottom:6px; }
+  /* champion */
+  .champ-card  { background:linear-gradient(135deg,rgba(232,160,32,0.18),rgba(232,160,32,0.04)); border:2px solid var(--accent); border-radius:10px; padding:14px 10px; text-align:center; margin:4px 6px; }
+  .champ-lbl   { font-size:0.62rem; font-weight:800; letter-spacing:0.14em; color:var(--accent); text-transform:uppercase; margin-bottom:8px; }
+  .champ-flag  { font-size:2rem; line-height:1.1; min-height:2.2rem; }
+  .champ-name  { font-size:1rem; font-weight:800; color:var(--text); min-height:1.4em; margin-top:4px; }
+  .third-lbl   { font-size:0.62rem; font-weight:700; letter-spacing:0.1em; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; }
+
   /* KNOCKOUT STAGE */
   .ko-round-header {
     display: flex; align-items: center; gap: 14px; margin: 32px 0 16px;
@@ -654,6 +703,7 @@
   <div class="nav-links">
     <button class="nav-btn active" onclick="showPage('schedule')">Group Stage</button>
     <button class="nav-btn" onclick="showPage('knockout')">🏆 Knockout</button>
+    <button class="nav-btn" onclick="showPage('bracket')">🎯 Bracket</button>
     <button class="nav-btn" onclick="showPage('overview')">Overview</button>
     <button class="nav-btn" onclick="showPage('injuries')">Injuries / Out</button>
   </div>
@@ -750,6 +800,188 @@
     <button class="filter-btn" onclick="filterInjury('race', this)">Racing Fit</button>
   </div>
   <div class="injuries-grid" id="injuriesGrid"></div>
+</div>
+
+<!-- ===================== BRACKET CHALLENGE PAGE ===================== -->
+<div id="page-bracket" class="page">
+  <div class="section-header" style="margin-bottom:8px">
+    <h2>R16 Bracket Challenge</h2>
+    <span class="badge" style="background:var(--accent2);color:#fff">Your Picks</span>
+  </div>
+  <p class="bracket-note">Fill in your predictions — nothing is saved, picks reset when you close the tab.</p>
+  <div class="bracket-outer">
+   <div class="bracket-row">
+
+    <!-- ── ROUND OF 16 ── -->
+    <div class="b-col b-col-r16">
+      <div class="b-col-label">Round of 16</div>
+      <!-- Pair 1 → QF1 -->
+      <div class="b-pair">
+        <div class="b-card"><div class="b-card-lbl">Match 1 · Jul 4</div>
+          <div class="b-team-row"><input class="b-team-in" id="m1t1" value="Paraguay" placeholder="Team 1" oninput="bTeam('m1')"></div>
+          <div class="b-team-row"><input class="b-team-in" id="m1t2" value="France"   placeholder="Team 2" oninput="bTeam('m1')"></div>
+          <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="m1pick" onchange="bR16('m1','qf1',0)"><option value="">— pick —</option></select></div>
+        </div>
+        <div class="b-card"><div class="b-card-lbl">Match 2 · Jul 4</div>
+          <div class="b-team-row"><input class="b-team-in" id="m2t1" value="Canada"  placeholder="Team 1" oninput="bTeam('m2')"></div>
+          <div class="b-team-row"><input class="b-team-in" id="m2t2" value="Morocco" placeholder="Team 2" oninput="bTeam('m2')"></div>
+          <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="m2pick" onchange="bR16('m2','qf1',1)"><option value="">— pick —</option></select></div>
+        </div>
+      </div>
+      <!-- Pair 2 → QF2 -->
+      <div class="b-pair">
+        <div class="b-card"><div class="b-card-lbl">Match 3 · Jul 6</div>
+          <div class="b-team-row"><input class="b-team-in" id="m3t1" value="" placeholder="Team (TBD)" oninput="bTeam('m3')"></div>
+          <div class="b-team-row"><input class="b-team-in" id="m3t2" value="" placeholder="Team (TBD)" oninput="bTeam('m3')"></div>
+          <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="m3pick" onchange="bR16('m3','qf2',0)"><option value="">— pick —</option></select></div>
+        </div>
+        <div class="b-card"><div class="b-card-lbl">Match 4 · Jul 6</div>
+          <div class="b-team-row"><input class="b-team-in" id="m4t1" value="United States" placeholder="Team 1" oninput="bTeam('m4')"></div>
+          <div class="b-team-row"><input class="b-team-in" id="m4t2" value="Belgium"       placeholder="Team 2" oninput="bTeam('m4')"></div>
+          <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="m4pick" onchange="bR16('m4','qf2',1)"><option value="">— pick —</option></select></div>
+        </div>
+      </div>
+      <!-- Pair 3 → QF3 -->
+      <div class="b-pair">
+        <div class="b-card"><div class="b-card-lbl">Match 5 · Jul 5</div>
+          <div class="b-team-row"><input class="b-team-in" id="m5t1" value="Brazil"  placeholder="Team 1" oninput="bTeam('m5')"></div>
+          <div class="b-team-row"><input class="b-team-in" id="m5t2" value="Norway"  placeholder="Team 2" oninput="bTeam('m5')"></div>
+          <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="m5pick" onchange="bR16('m5','qf3',0)"><option value="">— pick —</option></select></div>
+        </div>
+        <div class="b-card"><div class="b-card-lbl">Match 6 · Jul 5</div>
+          <div class="b-team-row"><input class="b-team-in" id="m6t1" value="Mexico"  placeholder="Team 1" oninput="bTeam('m6')"></div>
+          <div class="b-team-row"><input class="b-team-in" id="m6t2" value="England" placeholder="Team 2" oninput="bTeam('m6')"></div>
+          <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="m6pick" onchange="bR16('m6','qf3',1)"><option value="">— pick —</option></select></div>
+        </div>
+      </div>
+      <!-- Pair 4 → QF4 -->
+      <div class="b-pair">
+        <div class="b-card"><div class="b-card-lbl">Match 7 · Jul 7</div>
+          <div class="b-team-row"><input class="b-team-in" id="m7t1" value="" placeholder="Team (TBD)" oninput="bTeam('m7')"></div>
+          <div class="b-team-row"><input class="b-team-in" id="m7t2" value="" placeholder="Team (TBD)" oninput="bTeam('m7')"></div>
+          <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="m7pick" onchange="bR16('m7','qf4',0)"><option value="">— pick —</option></select></div>
+        </div>
+        <div class="b-card"><div class="b-card-lbl">Match 8 · Jul 7</div>
+          <div class="b-team-row"><input class="b-team-in" id="m8t1" value="" placeholder="Team (TBD)" oninput="bTeam('m8')"></div>
+          <div class="b-team-row"><input class="b-team-in" id="m8t2" value="" placeholder="Team (TBD)" oninput="bTeam('m8')"></div>
+          <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="m8pick" onchange="bR16('m8','qf4',1)"><option value="">— pick —</option></select></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- gap col QF -->
+    <div class="b-col b-col-gap">
+      <div style="height:26px;flex-shrink:0"></div>
+      <div class="gap-line"></div><div class="gap-mid"></div><div class="gap-line"></div>
+      <div class="gap-mid" style="opacity:0"></div>
+      <div class="gap-line"></div><div class="gap-mid"></div><div class="gap-line"></div>
+      <div class="gap-mid" style="opacity:0"></div>
+      <div class="gap-line"></div><div class="gap-mid"></div><div class="gap-line"></div>
+      <div class="gap-mid" style="opacity:0"></div>
+      <div class="gap-line"></div><div class="gap-mid"></div><div class="gap-line"></div>
+    </div>
+
+    <!-- ── QUARTERFINALS ── -->
+    <div class="b-col b-col-qf">
+      <div class="b-col-label">Quarterfinals</div>
+      <div class="b-single"><div class="b-card"><div class="b-card-lbl">QF1 · Jul 9</div>
+        <div class="b-team-row"><div class="b-team-dsp" id="qf1t1">Winner M1</div></div>
+        <div class="b-team-row"><div class="b-team-dsp" id="qf1t2">Winner M2</div></div>
+        <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="qf1pick" onchange="bQF('qf1','sf1',0)"><option value="">— pick —</option></select></div>
+      </div></div>
+      <div class="b-single"><div class="b-card"><div class="b-card-lbl">QF2 · Jul 9</div>
+        <div class="b-team-row"><div class="b-team-dsp" id="qf2t1">Winner M3</div></div>
+        <div class="b-team-row"><div class="b-team-dsp" id="qf2t2">Winner M4</div></div>
+        <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="qf2pick" onchange="bQF('qf2','sf1',1)"><option value="">— pick —</option></select></div>
+      </div></div>
+      <div class="b-single"><div class="b-card"><div class="b-card-lbl">QF3 · Jul 10</div>
+        <div class="b-team-row"><div class="b-team-dsp" id="qf3t1">Winner M5</div></div>
+        <div class="b-team-row"><div class="b-team-dsp" id="qf3t2">Winner M6</div></div>
+        <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="qf3pick" onchange="bQF('qf3','sf2',0)"><option value="">— pick —</option></select></div>
+      </div></div>
+      <div class="b-single"><div class="b-card"><div class="b-card-lbl">QF4 · Jul 10</div>
+        <div class="b-team-row"><div class="b-team-dsp" id="qf4t1">Winner M7</div></div>
+        <div class="b-team-row"><div class="b-team-dsp" id="qf4t2">Winner M8</div></div>
+        <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="qf4pick" onchange="bQF('qf4','sf2',1)"><option value="">— pick —</option></select></div>
+      </div></div>
+    </div>
+
+    <!-- gap col SF -->
+    <div class="b-col b-col-gap">
+      <div style="height:26px;flex-shrink:0"></div>
+      <div class="gap-line"></div><div class="gap-mid"></div><div class="gap-line"></div>
+      <div style="flex:1"></div>
+      <div class="gap-line"></div><div class="gap-mid"></div><div class="gap-line"></div>
+    </div>
+
+    <!-- ── SEMIFINALS ── -->
+    <div class="b-col b-col-sf">
+      <div class="b-col-label">Semifinals</div>
+      <div class="b-single" style="flex:2"><div class="b-card"><div class="b-card-lbl">SF1 · Jul 14</div>
+        <div class="b-team-row"><div class="b-team-dsp" id="sf1t1">Winner QF1</div></div>
+        <div class="b-team-row"><div class="b-team-dsp" id="sf1t2">Winner QF2</div></div>
+        <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="sf1pick" onchange="bSF('sf1')"><option value="">— pick —</option></select></div>
+      </div></div>
+      <div class="b-single" style="flex:2"><div class="b-card"><div class="b-card-lbl">SF2 · Jul 15</div>
+        <div class="b-team-row"><div class="b-team-dsp" id="sf2t1">Winner QF3</div></div>
+        <div class="b-team-row"><div class="b-team-dsp" id="sf2t2">Winner QF4</div></div>
+        <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="sf2pick" onchange="bSF('sf2')"><option value="">— pick —</option></select></div>
+      </div></div>
+    </div>
+
+    <!-- gap col Final -->
+    <div class="b-col b-col-gap">
+      <div style="height:26px;flex-shrink:0"></div>
+      <div class="gap-line"></div><div class="gap-mid"></div><div class="gap-line"></div>
+    </div>
+
+    <!-- ── FINAL + 3RD + CHAMPION ── -->
+    <div class="b-col b-col-fin">
+      <div class="b-col-label">Final · Champion · 3rd Place</div>
+      <!-- 3rd Place -->
+      <div class="b-single" style="flex:1"><div class="b-card" style="border-left:3px solid var(--yellow)">
+        <div class="b-card-lbl" style="color:var(--yellow)">3rd Place · Jul 18</div>
+        <div class="b-team-row"><div class="b-team-dsp" id="3rdt1">Loser SF1</div></div>
+        <div class="b-team-row"><div class="b-team-dsp" id="3rdt2">Loser SF2</div></div>
+        <div class="b-pick-sec"><div class="b-pick-lbl">Pick 3rd Place</div><select class="b-sel" id="3rdpick"><option value="">— pick —</option></select></div>
+      </div></div>
+      <!-- Final -->
+      <div class="b-single" style="flex:2"><div class="b-card" style="border-left:3px solid var(--accent)">
+        <div class="b-card-lbl" style="color:var(--accent)">🏆 Final · Jul 19 · MetLife Stadium</div>
+        <div class="b-team-row"><div class="b-team-dsp" id="finalt1">Winner SF1</div></div>
+        <div class="b-team-row"><div class="b-team-dsp" id="finalt2">Winner SF2</div></div>
+        <div class="b-pick-sec"><div class="b-pick-lbl">Pick Winner</div><select class="b-sel" id="finalpick" onchange="bFinal()"><option value="">— pick —</option></select></div>
+        <div class="score-pred-wrap" id="scorePredWrap" style="display:none">
+          <div class="score-pred-title">Predict the Score</div>
+          <div class="score-pred-row">
+            <span class="score-pred-nm" id="sName1">Team 1</span>
+            <input type="number" class="b-score-in" id="scoreA" min="0" max="20" placeholder="0" oninput="bCheckTie()">
+            <span class="score-vs">–</span>
+            <input type="number" class="b-score-in" id="scoreB" min="0" max="20" placeholder="0" oninput="bCheckTie()">
+            <span class="score-pred-nm r" id="sName2">Team 2</span>
+          </div>
+          <div class="tie-section" id="tieSect" style="display:none">
+            <div class="tie-lbl">⚡ Tied after 90 min — who wins AET/penalties?</div>
+            <select class="b-sel" id="penspick" onchange="bPens()"><option value="">— pick pens winner —</option></select>
+          </div>
+        </div>
+      </div></div>
+      <!-- Champion -->
+      <div class="b-single" style="flex:1">
+        <div class="champ-card">
+          <div class="champ-lbl">🏆 Champion</div>
+          <div class="champ-flag" id="champFlag"></div>
+          <div class="champ-name" id="champName">—</div>
+        </div>
+        <div class="b-card" style="margin-top:8px;border-left:3px solid #cd7f32">
+          <div class="b-card-lbl third-lbl">🥉 3rd Place Winner</div>
+          <div class="champ-name" id="thirdName" style="font-size:0.88rem;text-align:center;padding:4px 0">—</div>
+        </div>
+      </div>
+    </div>
+
+   </div><!-- bracket-row -->
+  </div><!-- bracket-outer -->
 </div>
 
 <!-- ===================== KNOCKOUT STAGE PAGE ===================== -->
@@ -1710,6 +1942,126 @@ function showMatch(id) {
   window.scrollTo(0, 0);
 }
 
+// ===================== BRACKET CHALLENGE =====================
+const bSt = {}; // bracket state: picks keyed by match id
+
+function bSel(id, opts, cur) {
+  const el = document.getElementById(id); if (!el) return;
+  const prev = cur !== undefined ? cur : el.value;
+  el.innerHTML = '<option value="">— pick —</option>' +
+    opts.filter(Boolean).map(o=>`<option value="${o}"${o===prev?' selected':''}>${o}</option>`).join('');
+  el.className = 'b-sel' + (el.value ? ' picked' : '');
+}
+function bDsp(id, txt, fallback) {
+  const el = document.getElementById(id); if (!el) return;
+  const val = txt && txt.trim() ? txt : '';
+  el.textContent = val || fallback || '';
+  el.className = 'b-team-dsp' + (val && !val.startsWith('Winner') && !val.startsWith('Loser') ? ' filled' : '');
+}
+function bGetTeams(match) {
+  return [
+    (document.getElementById(match+'t1')?.value||'').trim(),
+    (document.getElementById(match+'t2')?.value||'').trim()
+  ];
+}
+function bTeam(match) { // team input changed → refresh dropdown
+  const [t1,t2] = bGetTeams(match); const prev = bSt[match];
+  bSel(match+'pick', [t1,t2], prev);
+  if (prev && prev!==t1 && prev!==t2) { bSt[match]=''; bClearFrom(match); }
+}
+function bR16(match, qf, slot) { // R16 winner picked
+  const w = document.getElementById(match+'pick')?.value || '';
+  bSt[match] = w;
+  document.getElementById(match+'pick').className = 'b-sel'+(w?' picked':'');
+  const fb = `Winner ${match.toUpperCase()}`;
+  bDsp(`${qf}t${slot+1}`, w, fb);
+  bRefreshQF(qf);
+}
+function bRefreshQF(qf) {
+  const el1 = document.getElementById(qf+'t1'), el2 = document.getElementById(qf+'t2');
+  const t1 = el1?.classList.contains('filled') ? el1.textContent : '';
+  const t2 = el2?.classList.contains('filled') ? el2.textContent : '';
+  const prev = bSt[qf];
+  bSel(qf+'pick', [t1,t2], prev);
+  if (prev && prev!==t1 && prev!==t2) { bSt[qf]=''; bClearFrom(qf); }
+}
+function bQF(qf, sf, slot) { // QF winner picked
+  const w = document.getElementById(qf+'pick')?.value || '';
+  bSt[qf] = w;
+  document.getElementById(qf+'pick').className = 'b-sel'+(w?' picked':'');
+  bDsp(`${sf}t${slot+1}`, w, `Winner ${qf.toUpperCase()}`);
+  bRefreshSF(sf);
+}
+function bRefreshSF(sf) {
+  const el1 = document.getElementById(sf+'t1'), el2 = document.getElementById(sf+'t2');
+  const t1 = el1?.classList.contains('filled') ? el1.textContent : '';
+  const t2 = el2?.classList.contains('filled') ? el2.textContent : '';
+  const prev = bSt[sf];
+  bSel(sf+'pick', [t1,t2], prev);
+  if (prev && prev!==t1 && prev!==t2) { bSt[sf]=''; bClearFrom(sf); }
+}
+function bSF(sf) { // SF winner picked
+  const w = document.getElementById(sf+'pick')?.value || '';
+  const t1 = document.getElementById(sf+'t1')?.textContent||'';
+  const t2 = document.getElementById(sf+'t2')?.textContent||'';
+  const loser = w===t1 ? t2 : (w===t2 ? t1 : '');
+  bSt[sf]=w; bSt[sf+'L']=loser;
+  document.getElementById(sf+'pick').className='b-sel'+(w?' picked':'');
+  const fin = sf==='sf1' ? 0 : 1, trd = sf==='sf1' ? 0 : 1;
+  bDsp(`finalt${fin+1}`, w, sf==='sf1'?'Winner SF1':'Winner SF2');
+  bDsp(`3rdt${trd+1}`,   loser, sf==='sf1'?'Loser SF1':'Loser SF2');
+  bRefreshFinal(); bRefreshThird();
+}
+function bRefreshFinal() {
+  const e1=document.getElementById('finalt1'), e2=document.getElementById('finalt2');
+  const t1=e1?.classList.contains('filled')?e1.textContent:'';
+  const t2=e2?.classList.contains('filled')?e2.textContent:'';
+  bSel('finalpick',[t1,t2],bSt['final']);
+  if (t1) document.getElementById('sName1').textContent=t1;
+  if (t2) document.getElementById('sName2').textContent=t2;
+  bSel('penspick',[t1,t2],bSt['pens']);
+  if (bSt['final']&&bSt['final']!==t1&&bSt['final']!==t2){bSt['final']='';bChamp('');}
+}
+function bRefreshThird() {
+  const e1=document.getElementById('3rdt1'),e2=document.getElementById('3rdt2');
+  const t1=e1?.classList.contains('filled')?e1.textContent:'';
+  const t2=e2?.classList.contains('filled')?e2.textContent:'';
+  bSel('3rdpick',[t1,t2],bSt['third']);
+  const pick=document.getElementById('3rdpick')?.value||'';
+  document.getElementById('thirdName').textContent=pick||'—';
+}
+function bFinal() {
+  const w=document.getElementById('finalpick')?.value||'';
+  bSt['final']=w;
+  document.getElementById('finalpick').className='b-sel'+(w?' picked':'');
+  document.getElementById('scorePredWrap').style.display=w?'block':'none';
+  bCheckTie(); if(!w){bChamp('');} else { bChamp(w); }
+}
+function bCheckTie() {
+  const a=parseInt(document.getElementById('scoreA')?.value??'');
+  const b_=parseInt(document.getElementById('scoreB')?.value??'');
+  const tied=!isNaN(a)&&!isNaN(b_)&&a===b_;
+  document.getElementById('tieSect').style.display=tied?'block':'none';
+  if(!tied&&bSt['final']) bChamp(bSt['final']);
+}
+function bPens() {
+  const w=document.getElementById('penspick')?.value||'';
+  bSt['pens']=w; if(w) bChamp(w);
+}
+function bChamp(name) {
+  document.getElementById('champName').textContent=name||'—';
+  document.getElementById('champFlag').textContent=name?(TEAMS[name]?.flag||'🏆'):'';
+}
+function bClearFrom(from) {
+  // cascade: clear QF/SF/Final downstream when an upstream pick is invalidated
+  const qfOf={m1:'qf1',m2:'qf1',m3:'qf2',m4:'qf2',m5:'qf3',m6:'qf3',m7:'qf4',m8:'qf4'};
+  const sfOf={qf1:'sf1',qf2:'sf1',qf3:'sf2',qf4:'sf2'};
+  const qf=qfOf[from]; if(qf){bSt[qf]='';const sf=sfOf[qf];if(sf){bSt[sf]='';bSt['final']='';}}
+}
+function initBracket() {
+  ['m1','m2','m3','m4','m5','m6','m7','m8'].forEach(m=>bTeam(m));
+}
+
 // ===================== KNOCKOUT RENDER =====================
 function renderKnockout() {
   const container = document.getElementById('knockoutContent');
@@ -1766,10 +2118,11 @@ function showPage(name) {
   const btns = document.querySelectorAll('.nav-btn');
   btns.forEach(b => {
     const t = b.textContent.toLowerCase();
-    if (name === 'knockout'  && t.includes('knockout')) b.classList.add('active');
-    if (name === 'overview'  && t.includes('overview'))  b.classList.add('active');
-    if (name === 'injuries'  && t.includes('injur'))     b.classList.add('active');
-    if (name === 'schedule'  && t.includes('group'))     b.classList.add('active');
+    if (name === 'knockout' && t.includes('knockout'))  b.classList.add('active');
+    if (name === 'bracket'  && t.includes('bracket'))   b.classList.add('active');
+    if (name === 'overview' && t.includes('overview'))  b.classList.add('active');
+    if (name === 'injuries' && t.includes('injur'))     b.classList.add('active');
+    if (name === 'schedule' && t.includes('group'))     b.classList.add('active');
   });
   window.scrollTo(0, 0);
 }
@@ -1977,6 +2330,7 @@ renderSchedule();
 renderFavorites();
 renderInjuries();
 renderKnockout();
+initBracket();
 initFilterSidebar();
 applyFilters();   // apply hideFinished=true on page load
 startLivePolling();
