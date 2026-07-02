@@ -960,9 +960,27 @@
             <input type="number" class="b-score-in" id="scoreB" min="0" max="20" placeholder="0" oninput="bCheckTie()">
             <span class="score-pred-nm r" id="sName2">Team 2</span>
           </div>
+          <!-- Extra Time (shown when 90-min is tied) -->
           <div class="tie-section" id="tieSect" style="display:none">
-            <div class="tie-lbl">⚡ Tied after 90 min — who wins AET/penalties?</div>
-            <select class="b-sel" id="penspick" onchange="bPens()"><option value="">— pick pens winner —</option></select>
+            <div class="tie-lbl">⚡ Tied after 90 min — Extra Time Score:</div>
+            <div class="score-pred-row">
+              <span class="score-pred-nm" id="sNameET1">Team 1</span>
+              <input type="number" class="b-score-in" id="scoreET_A" min="0" max="30" placeholder="0" oninput="bCheckET()">
+              <span class="score-vs">–</span>
+              <input type="number" class="b-score-in" id="scoreET_B" min="0" max="30" placeholder="0" oninput="bCheckET()">
+              <span class="score-pred-nm r" id="sNameET2">Team 2</span>
+            </div>
+            <!-- Penalties (shown when ET is also tied) -->
+            <div class="tie-section" id="pensSect" style="display:none">
+              <div class="tie-lbl">🥅 Still tied after ET — Penalty Shootout:</div>
+              <div class="score-pred-row">
+                <span class="score-pred-nm" id="sNamePens1">Team 1</span>
+                <input type="number" class="b-score-in" id="scorePens_A" min="0" max="20" placeholder="0" oninput="bCheckPens()">
+                <span class="score-vs">–</span>
+                <input type="number" class="b-score-in" id="scorePens_B" min="0" max="20" placeholder="0" oninput="bCheckPens()">
+                <span class="score-pred-nm r" id="sNamePens2">Team 2</span>
+              </div>
+            </div>
           </div>
         </div>
       </div></div>
@@ -2019,7 +2037,9 @@ function bRefreshFinal() {
   bSel('finalpick',[t1,t2],bSt['final']);
   if (t1) document.getElementById('sName1').textContent=t1;
   if (t2) document.getElementById('sName2').textContent=t2;
-  bSel('penspick',[t1,t2],bSt['pens']);
+  // sync team names in ET and pens rows
+  ['sNameET1','sNamePens1'].forEach(id => { const e=document.getElementById(id); if(e&&t1) e.textContent=t1; });
+  ['sNameET2','sNamePens2'].forEach(id => { const e=document.getElementById(id); if(e&&t2) e.textContent=t2; });
   if (bSt['final']&&bSt['final']!==t1&&bSt['final']!==t2){bSt['final']='';bChamp('');}
 }
 function bRefreshThird() {
@@ -2038,15 +2058,44 @@ function bFinal() {
   bCheckTie(); if(!w){bChamp('');} else { bChamp(w); }
 }
 function bCheckTie() {
-  const a=parseInt(document.getElementById('scoreA')?.value??'');
-  const b_=parseInt(document.getElementById('scoreB')?.value??'');
-  const tied=!isNaN(a)&&!isNaN(b_)&&a===b_;
-  document.getElementById('tieSect').style.display=tied?'block':'none';
-  if(!tied&&bSt['final']) bChamp(bSt['final']);
+  const a  = parseInt(document.getElementById('scoreA')?.value ?? '');
+  const b_ = parseInt(document.getElementById('scoreB')?.value ?? '');
+  const tied = !isNaN(a) && !isNaN(b_) && a === b_;
+  document.getElementById('tieSect').style.display = tied ? 'block' : 'none';
+  if (!tied) {
+    // clear ET/pens sections when score is no longer tied
+    document.getElementById('pensSect').style.display = 'none';
+    ['scoreET_A','scoreET_B','scorePens_A','scorePens_B'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    if (bSt['final']) bChamp(bSt['final']);
+  }
 }
-function bPens() {
-  const w=document.getElementById('penspick')?.value||'';
-  bSt['pens']=w; if(w) bChamp(w);
+function bCheckET() {
+  const a  = parseInt(document.getElementById('scoreET_A')?.value ?? '');
+  const b_ = parseInt(document.getElementById('scoreET_B')?.value ?? '');
+  const bothFilled = !isNaN(a) && !isNaN(b_);
+  const tied = bothFilled && a === b_;
+  document.getElementById('pensSect').style.display = tied ? 'block' : 'none';
+  if (bothFilled && !tied) {
+    // ET winner determined — update champion
+    const t1 = document.getElementById('sNameET1')?.textContent || '';
+    const t2 = document.getElementById('sNameET2')?.textContent || '';
+    bChamp(a > b_ ? t1 : t2);
+    // clear pens if ET resolved
+    ['scorePens_A','scorePens_B'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+  }
+}
+function bCheckPens() {
+  const a  = parseInt(document.getElementById('scorePens_A')?.value ?? '');
+  const b_ = parseInt(document.getElementById('scorePens_B')?.value ?? '');
+  if (!isNaN(a) && !isNaN(b_) && a !== b_) {
+    const t1 = document.getElementById('sNamePens1')?.textContent || '';
+    const t2 = document.getElementById('sNamePens2')?.textContent || '';
+    bChamp(a > b_ ? t1 : t2);
+  }
 }
 function bChamp(name) {
   document.getElementById('champName').textContent=name||'—';
