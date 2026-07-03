@@ -2,7 +2,7 @@ name: Auto-Update WC Scores
 
 on:
   schedule:
-    - cron: "0 */2 * * *"   # every 2 hours, 24/7
+    - cron: "0 13 * * *"    # 8:00 AM CT (1 PM UTC) once daily
   workflow_dispatch:          # also lets you trigger it manually from GitHub
 
 jobs:
