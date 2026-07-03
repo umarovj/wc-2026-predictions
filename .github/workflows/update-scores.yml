@@ -13,10 +13,10 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.3.0
         with:
           python-version: "3.12"
 
@@ -25,11 +25,11 @@ jobs:
 
       - name: Fetch and patch scores
         id: patch
-        run: python update_scores.py
-        continue-on-error: true   # exit 1 (no changes) is normal, don't fail the job
+        run: |
+          python update_scores.py && echo "changed=true" >> $GITHUB_OUTPUT || echo "changed=false" >> $GITHUB_OUTPUT
 
       - name: Commit and push if scores changed
-        if: steps.patch.outcome == 'success'   # only runs when exit 0 (changes found)
+        if: steps.patch.outputs.changed == 'true'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
