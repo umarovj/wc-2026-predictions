@@ -141,25 +141,29 @@ def patch_group(html, home, away, hs, as_):
 # ── KNOCKOUT STAGE PATCH ─────────────────────────────────────────────────────
 
 def patch_ko_result(html, home, away, hs, as_, winner):
-    """Update a KNOCKOUT_MATCHES line with the final score."""
+    """Update a KNOCKOUT_MATCHES line with the final score.
+    Handles both home/away orderings since ESPN may differ from our data."""
     lines = html.split("\n")
     out, changed = [], False
     for line in lines:
-        if f'home:"{home}"' in line and f'away:"{away}"' in line and 'round:' in line:
-            if 'status:"ft"' in line:
-                out.append(line); continue
-            line = re.sub(r",\s*result:\{[^}]+\}", "", line)
-            stripped = line.rstrip()
-            if stripped.endswith("},"):
-                if winner and winner != (home if hs > as_ else away):
-                    # decided on pens — store 90min score + winner flag
-                    res = f'result:{{home:{hs},away:{as_},status:"ft",winner:"{winner}"}}'
-                else:
-                    res = f'result:{{home:{hs},away:{as_},status:"ft"}}'
-                line = stripped[:-2] + f', {res} }},'
-                changed = True
-                print(f"  ✓ [KO]    {home} {hs}–{as_} {away}" +
-                      (f" ({winner} on pens)" if winner and hs == as_ else ""))
+        if 'round:' in line:
+            normal  = f'home:"{home}"' in line and f'away:"{away}"' in line
+            flipped = f'home:"{away}"' in line and f'away:"{home}"' in line
+            if (normal or flipped) and 'status:"ft"' not in line:
+                line = re.sub(r",\s*result:\{[^}]+\}", "", line)
+                stripped = line.rstrip()
+                if stripped.endswith("},"):
+                    # Swap scores when our data order is opposite to ESPN
+                    h_score = as_ if flipped else hs
+                    a_score = hs  if flipped else as_
+                    if winner and h_score == a_score:
+                        res = f'result:{{home:{h_score},away:{a_score},status:"ft",winner:"{winner}"}}'
+                    else:
+                        res = f'result:{{home:{h_score},away:{a_score},status:"ft"}}'
+                    line = stripped[:-2] + f', {res} }},'
+                    changed = True
+                    suffix = f" ({winner} on pens)" if winner and hs == as_ else ""
+                    print(f"  ✓ [KO]    {home} {hs}–{as_} {away}{suffix}")
         out.append(line)
     return "\n".join(out), changed
 
