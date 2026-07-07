@@ -1019,7 +1019,7 @@
 
 <!-- ===================== MATCH DETAIL PAGE ===================== -->
 <div id="page-match">
-  <button class="back-btn" onclick="showPage('schedule')">&#8592; Back to Schedule</button>
+  <button class="back-btn" id="backBtn" onclick="showPage(window._lastTab||'schedule')">&#8592; Back</button>
   <div id="matchDetailContent"></div>
 </div>
 
@@ -1195,18 +1195,18 @@ const KNOCKOUT_MATCHES = [
   { id:"r32-15", round:"Round of 32",   date:"Jul 3",  time:"5:00 PM CT",  home:"Argentina",    away:"Cape Verde",        venue:"Hard Rock Stadium",        city:"Miami, FL" , result:{home:3,away:2,status:"ft"} },
   { id:"r32-16", round:"Round of 32",   date:"Jul 3",  time:"9:00 PM CT",  home:"Colombia",     away:"Ghana",             venue:"Arrowhead Stadium",        city:"Kansas City, MO" , result:{home:1,away:0,status:"ft"} },
   // ── ROUND OF 16 ──────────────────────────────────────────────
-  { id:"r16-1",  round:"Round of 16",   date:"Jul 4",  time:"11:00 AM CT", home:"Canada",       away:"Morocco",           venue:"NRG Stadium",              city:"Houston, TX" },
-  { id:"r16-2",  round:"Round of 16",   date:"Jul 4",  time:"4:00 PM CT",  home:"Paraguay",     away:"France",            venue:"Lincoln Financial Field",  city:"Philadelphia, PA" },
-  { id:"r16-3",  round:"Round of 16",   date:"Jul 5",  time:"3:00 PM CT",  home:"Brazil",       away:"Norway",            venue:"MetLife Stadium",          city:"New York, NJ" },
-  { id:"r16-4",  round:"Round of 16",   date:"Jul 5",  time:"8:00 PM CT",  home:"Mexico",       away:"England",           venue:"Estadio Azteca",           city:"Mexico City, MX" },
-  { id:"r16-5",  round:"Round of 16",   date:"Jul 6",  time:"2:00 PM CT",  home:"Spain",           away:"Portugal",                     venue:"AT&T Stadium",             city:"Dallas, TX" },
-  { id:"r16-6",  round:"Round of 16",   date:"Jul 6",  time:"7:00 PM CT",  home:"United States",away:"Belgium",           venue:"Lumen Field",              city:"Seattle, WA" },
+  { id:"r16-1",  round:"Round of 16",   date:"Jul 4",  time:"11:00 AM CT", home:"Canada",       away:"Morocco",           venue:"NRG Stadium",              city:"Houston, TX" , result:{home:0,away:3,status:"ft"} },
+  { id:"r16-2",  round:"Round of 16",   date:"Jul 4",  time:"4:00 PM CT",  home:"Paraguay",     away:"France",            venue:"Lincoln Financial Field",  city:"Philadelphia, PA" , result:{home:0,away:1,status:"ft"} },
+  { id:"r16-3",  round:"Round of 16",   date:"Jul 5",  time:"3:00 PM CT",  home:"Brazil",       away:"Norway",            venue:"MetLife Stadium",          city:"New York, NJ" , result:{home:1,away:2,status:"ft"} },
+  { id:"r16-4",  round:"Round of 16",   date:"Jul 5",  time:"8:00 PM CT",  home:"Mexico",       away:"England",           venue:"Estadio Azteca",           city:"Mexico City, MX" , result:{home:2,away:3,status:"ft"} },
+  { id:"r16-5",  round:"Round of 16",   date:"Jul 6",  time:"2:00 PM CT",  home:"Spain",           away:"Portugal",                     venue:"AT&T Stadium",             city:"Dallas, TX" , result:{home:1,away:0,status:"ft"} },
+  { id:"r16-6",  round:"Round of 16",   date:"Jul 6",  time:"7:00 PM CT",  home:"United States",away:"Belgium",           venue:"Lumen Field",              city:"Seattle, WA" , result:{home:1,away:4,status:"ft"} },
   { id:"r16-7",  round:"Round of 16",   date:"Jul 7",  time:"11:00 AM CT", home:"Argentina",              away:"Egypt",                     venue:"Mercedes-Benz Stadium",    city:"Atlanta, GA" },
   { id:"r16-8",  round:"Round of 16",   date:"Jul 7",  time:"3:00 PM CT",  home:"Switzerland",              away:"Colombia",                     venue:"BC Place",                 city:"Vancouver, CA" },
   // ── QUARTER-FINALS ────────────────────────────────────────────
-  { id:"qf-1",   round:"Quarter-finals",date:"Jul 9",  time:"TBD",         home:null,           away:null,                venue:"MetLife Stadium",          city:"New York, NJ" },
-  { id:"qf-2",   round:"Quarter-finals",date:"Jul 9",  time:"TBD",         home:null,           away:null,                venue:"SoFi Stadium",             city:"Los Angeles, CA" },
-  { id:"qf-3",   round:"Quarter-finals",date:"Jul 10", time:"TBD",         home:null,           away:null,                venue:"Estadio Azteca",           city:"Mexico City, MX" },
+  { id:"qf-1",   round:"Quarter-finals",date:"Jul 9",  time:"TBD",         home:"Morocco",           away:"France",                venue:"MetLife Stadium",          city:"New York, NJ" },
+  { id:"qf-2",   round:"Quarter-finals",date:"Jul 9",  time:"TBD",         home:"Norway",           away:"England",                venue:"SoFi Stadium",             city:"Los Angeles, CA" },
+  { id:"qf-3",   round:"Quarter-finals",date:"Jul 10", time:"TBD",         home:"Spain",           away:"Belgium",                venue:"Estadio Azteca",           city:"Mexico City, MX" },
   { id:"qf-4",   round:"Quarter-finals",date:"Jul 10", time:"TBD",         home:null,           away:null,                venue:"Mercedes-Benz Stadium",    city:"Atlanta, GA" },
   // ── SEMI-FINALS ───────────────────────────────────────────────
   { id:"sf-1",   round:"Semi-finals",   date:"Jul 14", time:"TBD",         home:null,           away:null,                venue:"MetLife Stadium",          city:"New York, NJ" },
@@ -1842,6 +1842,8 @@ function renderRoster(teamName) {
 function showMatch(id) {
   const m = MATCHES.find(x => x.id === id);
   if (!m) return;
+  window._lastTab = 'schedule';
+  document.getElementById('backBtn').textContent = '← Back to Schedule';
   const ht = TEAMS[m.home] || {};
   const at = TEAMS[m.away] || {};
   const pred = getMatchPrediction(m.home, m.away);
@@ -2162,6 +2164,118 @@ function initBracket() {
   ['m1','m2','m3','m4','m5','m6','m7','m8'].forEach(m=>bTeam(m));
 }
 
+// ===================== KNOCKOUT MATCH DETAIL =====================
+function showKOMatch(id) {
+  const m = KNOCKOUT_MATCHES.find(x => x.id === id);
+  if (!m || (!m.home && !m.away)) return;
+
+  window._lastTab = 'knockout';
+  document.getElementById('backBtn').textContent = '← Back to Knockout';
+
+  const ht = TEAMS[m.home] || {};
+  const at = TEAMS[m.away] || {};
+  const r  = m.result;
+
+  const hProb = WIN_PROBS.find(t => t.team === m.home);
+  const aProb = WIN_PROBS.find(t => t.team === m.away);
+  const pred  = getMatchPrediction(m.home, m.away);
+  const tp    = getTicketPrices(m.home, m.away);
+  const v     = VENUE_DATA[m.city] || {};
+
+  // Score display for hero
+  let heroScore = '';
+  if (r?.status === 'ft') {
+    const penStr = r.winner ? ` <span class="badge-ft" style="font-size:0.72rem">${r.winner} on pens</span>` : '';
+    heroScore = `<div class="big-score">${r.home} – ${r.away}</div><span class="badge-ft" style="font-size:0.75rem;padding:3px 10px">FULL TIME</span>${penStr}`;
+  } else if (r?.status === 'live') {
+    heroScore = `<div class="big-score">${r.home} – ${r.away}</div><span class="badge-live" style="font-size:0.75rem;padding:3px 10px">● LIVE</span>`;
+  } else {
+    heroScore = `<div class="hero-vs">VS</div>`;
+  }
+
+  const travelHtml = v.flightFrom ? `
+  <div class="travel-section">
+    <h3>✈️ Getting There &amp; Tickets</h3>
+    <div class="travel-grid">
+      <div class="travel-card">
+        <div class="tc-label">🎫 Tickets (Resale)</div>
+        <div class="tc-val"><a href="https://www.stubhub.com/world-cup-tickets/grouping/45410" target="_blank" rel="noopener" style="color:var(--accent2)">StubHub</a> &nbsp;|&nbsp; <a href="https://seatgeek.com/fifa-world-cup-tickets" target="_blank" rel="noopener" style="color:var(--accent2)">SeatGeek</a></div>
+        <div style="margin-top:8px;font-size:0.8rem">
+          <div>Cat 1: <strong>${tp.cat1}</strong></div>
+          <div>Cat 2: <strong>${tp.cat2}</strong></div>
+          <div>Cat 3: <strong>${tp.cat3}</strong></div>
+        </div>
+      </div>
+      <div class="travel-card">
+        <div class="tc-label">✈️ Flight from MSP</div>
+        <div class="tc-val">From <strong>${v.flightFrom}</strong></div>
+        <div style="font-size:0.8rem;margin-top:4px">${v.airline}</div>
+        <a href="${v.flightLink}" target="_blank" rel="noopener" class="tc-link">Search Flights →</a>
+      </div>
+      <div class="travel-card">
+        <div class="tc-label">🚗 Drive from MSP</div>
+        <div class="tc-val">${v.driveHrs}</div>
+        <a href="https://www.google.com/maps/dir/Minneapolis,+MN/${encodeURIComponent(m.city)}" target="_blank" rel="noopener" class="tc-link">Google Maps →</a>
+      </div>
+    </div>
+  </div>` : '';
+
+  document.getElementById('matchDetailContent').innerHTML = `
+    <div class="match-hero">
+      <div class="match-title">${m.round} · ${m.date}, 2026</div>
+      <div class="hero-teams">
+        <div class="hero-team">
+          <div class="hero-flag">${ht.flag||'🏳'}</div>
+          <div class="hero-name">${m.home}</div>
+          ${hProb ? `<div style="font-size:0.78rem;color:var(--accent)">${hProb.prob}% WC win odds</div>` : ''}
+        </div>
+        <div class="hero-score">${heroScore}</div>
+        <div class="hero-team">
+          <div class="hero-flag">${at.flag||'🏳'}</div>
+          <div class="hero-name">${m.away}</div>
+          ${aProb ? `<div style="font-size:0.78rem;color:var(--accent)">${aProb.prob}% WC win odds</div>` : ''}
+        </div>
+      </div>
+      <div class="hero-meta">
+        <span>📅 ${m.date}, 2026</span>
+        ${m.time !== 'TBD' ? `<span>🕐 ${m.time}</span>` : ''}
+        <span>🏟 ${m.venue}</span>
+        <span>📍 ${m.city}</span>
+      </div>
+    </div>
+    <div class="pred-section">
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:12px">Match Prediction</h3>
+      <div class="pred-bars">
+        <div class="pred-bar pred-win"  style="width:${pred.hWin}%">${pred.hWin}%<span>Win</span></div>
+        <div class="pred-bar pred-draw" style="width:${pred.draw}%">${pred.draw}%<span>Draw</span></div>
+        <div class="pred-bar pred-lose" style="width:${pred.aWin}%">${pred.aWin}%<span>Win</span></div>
+      </div>
+      <div class="pred-labels"><span>${m.home}</span><span>Draw</span><span>${m.away}</span></div>
+    </div>
+    ${travelHtml}
+    <div class="rosters-grid">
+      <div class="roster-card">
+        <div class="roster-header" style="background:${ht.color||'var(--surface2)'}">
+          <span class="roster-flag">${ht.flag||'🏳'}</span>
+          <span class="roster-team-name">${m.home}</span>
+        </div>
+        ${renderRoster(m.home)}
+      </div>
+      <div class="roster-card">
+        <div class="roster-header" style="background:${at.color||'var(--surface2)'}">
+          <span class="roster-flag">${at.flag||'🏳'}</span>
+          <span class="roster-team-name">${m.away}</span>
+        </div>
+        ${renderRoster(m.away)}
+      </div>
+    </div>`;
+
+  document.querySelectorAll('.page, #page-match').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-match').classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  window.scrollTo(0, 0);
+}
+
 // ===================== KNOCKOUT RENDER =====================
 function renderKnockout() {
   const container = document.getElementById('knockoutContent');
@@ -2194,13 +2308,16 @@ function renderKnockout() {
         ? `<div class="ko-team"><div class="ko-flag">${at.flag||'🏳'}</div><div class="ko-name">${m.away}</div></div>`
         : `<div class="ko-team"><div class="ko-tbd-flag">❓</div><div class="ko-name" style="color:var(--text-muted)">TBD</div></div>`;
 
-      return `<div class="ko-card ${cardCls}">
+      const clickable = !isTbd;
+      const clickAttr = clickable ? `onclick="showKOMatch('${m.id}')" style="cursor:pointer"` : '';
+      return `<div class="ko-card ${cardCls}" ${clickAttr}>
         <div class="ko-teams">${homeHtml}${scoreEl}${awayHtml}</div>
         <div class="ko-meta">
           <span>📅 ${m.date}</span>
           ${m.time !== 'TBD' ? `<span>🕐 ${m.time}</span>` : ''}
           <span>📍 ${m.city}</span>
           <span>🏟 ${m.venue}</span>
+          ${clickable ? `<span style="margin-left:auto;color:var(--accent2);font-size:0.7rem">View Details →</span>` : ''}
         </div>
       </div>`;
     }).join('');

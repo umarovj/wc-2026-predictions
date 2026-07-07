@@ -58,10 +58,10 @@ R16_TO_QF = {
     frozenset(["Paraguay",      "France"]):             ("qf-1", "away"),
     frozenset(["Brazil",        "Norway"]):             ("qf-2", "home"),
     frozenset(["Mexico",        "England"]):            ("qf-2", "away"),
-    frozenset(["Spain",         "Croatia"]):            ("qf-3", "home"),
+    frozenset(["Spain",         "Portugal"]):           ("qf-3", "home"),
     frozenset(["United States", "Belgium"]):            ("qf-3", "away"),
     frozenset(["Argentina",     "Egypt"]):              ("qf-4", "home"),
-    frozenset(["Algeria",       "Colombia"]):           ("qf-4", "away"),
+    frozenset(["Switzerland",   "Colombia"]):           ("qf-4", "away"),
 }
 
 # QF winner → SF slot
