@@ -230,7 +230,7 @@
     padding: 24px;
     margin-bottom: 24px;
   }
-  .prediction-section h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap-8px; }
+  .prediction-section h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
   .pred-bars { display: flex; gap: 0; border-radius: 8px; overflow: hidden; height: 48px; margin-bottom: 16px; }
   .pred-bar {
     display: flex;
@@ -1209,12 +1209,12 @@ const KNOCKOUT_MATCHES = [
   { id:"qf-3",   round:"Quarter-finals",date:"Jul 10", time:"TBD",         home:"Spain",           away:"Belgium",                venue:"Estadio Azteca",           city:"Mexico City, MX" , result:{home:2,away:1,status:"ft"} },
   { id:"qf-4",   round:"Quarter-finals",date:"Jul 10", time:"TBD",         home:"Argentina",           away:"Switzerland",                venue:"Mercedes-Benz Stadium",    city:"Atlanta, GA" , result:{home:3,away:1,status:"ft"} },
   // ── SEMI-FINALS ───────────────────────────────────────────────
-  { id:"sf-1",   round:"Semi-finals",   date:"Jul 14", time:"TBD",         home:"France",           away:"England",                venue:"MetLife Stadium",          city:"New York, NJ" },
-  { id:"sf-2",   round:"Semi-finals",   date:"Jul 15", time:"TBD",         home:"Spain",           away:"Argentina",                venue:"SoFi Stadium",             city:"Los Angeles, CA" },
+  { id:"sf-1",   round:"Semi-finals",   date:"Jul 14", time:"TBD",         home:"France",           away:"Spain",                venue:"MetLife Stadium",          city:"New York, NJ", result:{home:0,away:2,status:"ft"} },
+  { id:"sf-2",   round:"Semi-finals",   date:"Jul 15", time:"TBD",         home:"England",          away:"Argentina",              venue:"SoFi Stadium",             city:"Los Angeles, CA" },
   // ── THIRD PLACE ───────────────────────────────────────────────
-  { id:"3rd-1",  round:"3rd Place",     date:"Jul 18", time:"TBD",         home:null,           away:null,                venue:"Hard Rock Stadium",        city:"Miami, FL" },
+  { id:"3rd-1",  round:"3rd Place",     date:"Jul 18", time:"TBD",         home:"France",           away:null,                venue:"Hard Rock Stadium",        city:"Miami, FL" },
   // ── FINAL ─────────────────────────────────────────────────────
-  { id:"final",  round:"Final",         date:"Jul 19", time:"TBD",         home:null,           away:null,                venue:"MetLife Stadium",          city:"New York, NJ" },
+  { id:"final",  round:"Final",         date:"Jul 19", time:"TBD",         home:"Spain",            away:null,                venue:"MetLife Stadium",          city:"New York, NJ" },
 ];
 
 const ROSTERS = {

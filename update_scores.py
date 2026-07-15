@@ -64,17 +64,21 @@ R16_TO_QF = {
     frozenset(["Switzerland",   "Colombia"]):           ("qf-4", "away"),
 }
 
-# QF winner → SF slot
+# QF winner → SF slot  (actual bracket: qf-1 vs qf-3, qf-2 vs qf-4)
 QF_TO_SF = {
     ("qf-1", "home"): ("sf-1", "home"),
-    ("qf-1", "away"): ("sf-1", "home"),   # either winner goes to sf-1
-    ("qf-2", "home"): ("sf-1", "away"),
-    ("qf-2", "away"): ("sf-1", "away"),
-    ("qf-3", "home"): ("sf-2", "home"),
-    ("qf-3", "away"): ("sf-2", "home"),
+    ("qf-1", "away"): ("sf-1", "home"),
+    ("qf-3", "home"): ("sf-1", "away"),   # qf-3 winner faces qf-1 winner
+    ("qf-3", "away"): ("sf-1", "away"),
+    ("qf-2", "home"): ("sf-2", "home"),   # qf-2 winner faces qf-4 winner
+    ("qf-2", "away"): ("sf-2", "home"),
     ("qf-4", "home"): ("sf-2", "away"),
     ("qf-4", "away"): ("sf-2", "away"),
 }
+
+# SF winner → Final, SF loser → 3rd-place game
+SF_TO_FINAL = {"sf-1": ("final", "home"),  "sf-2": ("final", "away")}
+SF_TO_3RD   = {"sf-1": ("3rd-1", "home"), "sf-2": ("3rd-1", "away")}
 
 
 def norm(name):
@@ -181,7 +185,8 @@ def set_bracket_input(html, input_id, team):
     """Update a bracket challenge <input value="..."> with the confirmed team."""
     pattern = rf'(id="{input_id}"\s+value=")[^"]*(")'
     new, count = re.subn(pattern, rf'\g<1>{team}\g<2>', html)
-    return new, count > 0
+    # Only report changed if the content actually differs
+    return new, count > 0 and new != html
 
 
 def advance_to_next_round(html, home, away, winner, mapping, changed_flag):
@@ -240,16 +245,30 @@ def main():
         html, any_changed = advance_to_next_round(html, home, away, winner, R32_TO_R16, any_changed)
         # R16 → QF
         html, any_changed = advance_to_next_round(html, home, away, winner, R16_TO_QF, any_changed)
-        # QF → SF (simple: winner of qf-1 or qf-2 → sf-1; qf-3 or qf-4 → sf-2)
+        # QF → SF
         for (qf_slot, qf_side), (sf_slot, sf_side) in QF_TO_SF.items():
-            # Check if this match is the QF in question
-            # We do this by looking at the HTML for qf slot teams
             qf_pattern = rf'id:"{qf_slot}"[^}}]+?home:"([^"]+)"[^}}]+?away:"([^"]+)"'
             m = re.search(qf_pattern, html)
             if m:
                 qt1, qt2 = m.group(1), m.group(2)
                 if frozenset([home, away]) == frozenset([qt1, qt2]) and winner in (qt1, qt2):
                     html, c = set_ko_team(html, sf_slot, sf_side, winner)
+                    if c: any_changed = True
+                    break
+
+        # SF → Final + 3rd-place
+        for sf_slot in ["sf-1", "sf-2"]:
+            sf_pattern = rf'id:"{sf_slot}"[^}}]+?home:"([^"]+)"[^}}]+?away:"([^"]+)"'
+            m = re.search(sf_pattern, html)
+            if m:
+                st1, st2 = m.group(1), m.group(2)
+                if frozenset([home, away]) == frozenset([st1, st2]) and winner in (st1, st2):
+                    loser = st2 if winner == st1 else st1
+                    final_slot, final_side = SF_TO_FINAL[sf_slot]
+                    html, c = set_ko_team(html, final_slot, final_side, winner)
+                    if c: any_changed = True
+                    third_slot, third_side = SF_TO_3RD[sf_slot]
+                    html, c = set_ko_team(html, third_slot, third_side, loser)
                     if c: any_changed = True
                     break
 
