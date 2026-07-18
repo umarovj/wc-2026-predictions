@@ -117,6 +117,11 @@ def main():
     with open("index.html", encoding="utf-8") as f:
         html = f.read()
 
+    # World Cup is over once the Final has a result — no more injury updates
+    if re.search(r'id:"final"[^}]*status:"ft"', html):
+        print("Tournament complete — skipping injury update.")
+        sys.exit(1)
+
     current = extract_current_injuries(html)
     if not current:
         print("Could not find INJURIES array in index.html. Aborting.")

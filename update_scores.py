@@ -213,6 +213,11 @@ def main():
     with open("index.html", encoding="utf-8") as f:
         html = f.read()
 
+    # Tournament is over once the Final has a result — stop updating
+    if re.search(r'id:"final"[^}]*status:"ft"', html):
+        print("Tournament complete — no further updates needed.")
+        sys.exit(1)
+
     start = date(2026, 6, 11)
     today = date.today()
     all_results = []

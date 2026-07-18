@@ -2455,11 +2455,19 @@ const ESPN_NAMES = {
 function espnName(n) { return ESPN_NAMES[n] || n; }
 
 async function fetchLiveScores() {
+  const finalMatch = KNOCKOUT_MATCHES.find(m => m.id === 'final');
+  // Tournament is over — stop polling immediately
+  if (finalMatch?.result?.status === 'ft') {
+    if (_liveTimer) { clearInterval(_liveTimer); _liveTimer = null; }
+    return false;
+  }
+
   try {
     const r = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard');
     if (!r.ok) return false;
     const data = await r.json();
     let hasLive = false;
+    let koChanged = false;
 
     for (const ev of (data.events || [])) {
       const comp = ev.competitions?.[0];
@@ -2472,34 +2480,59 @@ async function fetchLiveScores() {
       const an = espnName(away.team.displayName);
       const state = ev.status?.type?.state;
 
+      // ── Group stage ──
       const m = MATCHES.find(x =>
         (x.home === hn && x.away === an) || (x.home === an && x.away === hn)
       );
-      if (!m) continue;
-
-      const flipped = m.home !== hn;
-      const hs = parseInt(flipped ? away.score : home.score) || 0;
-      const as_ = parseInt(flipped ? home.score : away.score) || 0;
-
-      if (state === 'in') {
-        m.result = { home: hs, away: as_, status: 'live', clock: ev.status?.displayClock };
-        hasLive = true;
-      } else if (state === 'post' || ev.status?.type?.completed) {
-        if (!m.result || m.result.status !== 'ft') {
-          m.result = { home: hs, away: as_, status: 'ft' };
+      if (m) {
+        const flipped = m.home !== hn;
+        const hs = parseInt(flipped ? away.score : home.score) || 0;
+        const as_ = parseInt(flipped ? home.score : away.score) || 0;
+        if (state === 'in') {
+          m.result = { home: hs, away: as_, status: 'live', clock: ev.status?.displayClock };
+          hasLive = true;
+        } else if (state === 'post' || ev.status?.type?.completed) {
+          if (!m.result || m.result.status !== 'ft')
+            m.result = { home: hs, away: as_, status: 'ft' };
+        }
+        const scoreEl = document.getElementById(`score-${m.id}`);
+        if (scoreEl) scoreEl.outerHTML = scoreHtml(m);
+        const card = document.querySelector(`.match-card[data-id="${m.id}"]`);
+        if (card) {
+          card.classList.toggle('match-ft',   m.result?.status === 'ft');
+          card.classList.toggle('match-live', m.result?.status === 'live');
         }
       }
 
-      // patch card in-place
-      const scoreEl = document.getElementById(`score-${m.id}`);
-      if (scoreEl) scoreEl.outerHTML = scoreHtml(m);
-      const card = document.querySelector(`.match-card[data-id="${m.id}"]`);
-      if (card) {
-        card.classList.toggle('match-ft',   m.result?.status === 'ft');
-        card.classList.toggle('match-live', m.result?.status === 'live');
+      // ── Knockout stage (3rd place + Final) ──
+      const km = KNOCKOUT_MATCHES.find(x =>
+        x.home && x.away &&
+        ((x.home === hn && x.away === an) || (x.home === an && x.away === hn))
+      );
+      if (km) {
+        const flippedKo = km.home !== hn;
+        const hs_ko = parseInt(flippedKo ? away.score : home.score) || 0;
+        const as_ko = parseInt(flippedKo ? home.score : away.score) || 0;
+        if (state === 'in') {
+          km.result = { home: hs_ko, away: as_ko, status: 'live', clock: ev.status?.displayClock };
+          hasLive = true;
+          koChanged = true;
+        } else if ((state === 'post' || ev.status?.type?.completed) &&
+                   (!km.result || km.result.status !== 'ft')) {
+          km.result = { home: hs_ko, away: as_ko, status: 'ft' };
+          koChanged = true;
+        }
       }
     }
+
+    if (koChanged) renderKnockout();
     updateLiveTicker();
+
+    // Stop polling once Final ends
+    if (finalMatch?.result?.status === 'ft') {
+      if (_liveTimer) { clearInterval(_liveTimer); _liveTimer = null; }
+    }
+
     return hasLive;
   } catch(e) {
     console.warn('Live scores fetch failed:', e);
@@ -2508,7 +2541,10 @@ async function fetchLiveScores() {
 }
 
 function updateLiveTicker() {
-  const live = MATCHES.filter(m => m.result?.status === 'live');
+  const live = [
+    ...MATCHES.filter(m => m.result?.status === 'live'),
+    ...KNOCKOUT_MATCHES.filter(m => m.result?.status === 'live'),
+  ];
   let ticker = document.getElementById('liveTicker');
   if (live.length > 0) {
     if (!ticker) {
@@ -2526,6 +2562,9 @@ function updateLiveTicker() {
 
 let _liveTimer = null;
 function startLivePolling() {
+  // Tournament is complete — never start polling
+  const finalMatch = KNOCKOUT_MATCHES.find(m => m.id === 'final');
+  if (finalMatch?.result?.status === 'ft') return;
   fetchLiveScores();
   if (_liveTimer) return;
   _liveTimer = setInterval(fetchLiveScores, 30000);
